@@ -2,9 +2,7 @@
 #
 # Build rules for mbuffer, the stream buffering tool 
 
-build: build-stamp
-build-stamp:
-	dh build --before auto_configure
+override_dh_auto_configure:
 ifneq "$(wildcard /usr/share/misc/config.sub)" ""
 	cp -f /usr/share/misc/config.sub config.sub
 endif
@@ -12,25 +10,8 @@ ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 	cp -f /usr/share/misc/config.guess config.guess
 endif
 	dh_auto_configure -- CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
-	dh build --before auto_test
-	dh build --after auto_test
-	touch $@
 
-clean: 
+override_dh_auto_test:
+
+%:
 	dh $@
-
-install: build
-	dh $@ --before auto_install
-	dh_auto_install -- DESTDIR=$(CURDIR)/debian/mbuffer install
-	dh $@ --remaining
-
-# Build architecture-independent files here.
-binary-indep: install
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: install
-	dh $@
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install 
