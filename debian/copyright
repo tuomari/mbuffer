@@ -1,6 +1,6 @@
-Format-Specification: http://wiki.debian.org/Proposals/CopyrightFormat?recall=184
-Upstream-Name: mbuffer
-Upstream-Source: http://www.maier-komor.de/mbuffer.html
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=59
+Name: mbuffer
+Source: http://www.maier-komor.de/mbuffer.html
 
 Files: *
 Author: Thomas Maier-Komor <thomas@maier-komor.de>
