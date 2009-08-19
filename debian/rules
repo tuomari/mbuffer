@@ -3,7 +3,7 @@
 # Build rules for mbuffer, the stream buffering tool 
 
 patch unpatch:
-	$(MAKE) -f /usr/share/quilt/quilt.mk $@
+	$(MAKE) -f /usr/share/quilt/quilt.make $@
 
 override_dh_auto_configure:
 ifneq "$(wildcard /usr/share/misc/config.sub)" ""
