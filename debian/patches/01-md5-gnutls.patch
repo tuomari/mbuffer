@@ -1,0 +1,24 @@
+Use the MD5 routines from GnuTLS instead of OpenSSL.
+
+--- a/configure
++++ b/configure
+@@ -5758,7 +5758,7 @@
+   return 0;
+ }
+ _ACEOF
+-for ac_lib in '' crypto; do
++for ac_lib in '' gnutls-openssl; do
+   if test -z "$ac_lib"; then
+     ac_res="none required"
+   else
+--- a/mbuffer.c
++++ b/mbuffer.c
+@@ -84,7 +84,7 @@
+ #define MD5_END(hash,ctxt)	MD5Final(hash,&(ctxt))
+ #define HAVE_MD5 1
+ #elif defined HAVE_LIBCRYPTO
+-#include <openssl/md5.h>
++#include <gnutls/openssl.h>
+ static MD5_CTX MD5ctxt;
+ #define MD5_INIT(ctxt)		MD5_Init(&ctxt);
+ #define MD5_UPDATE(ctxt,at,num)	MD5_Update(&ctxt,at,num)
