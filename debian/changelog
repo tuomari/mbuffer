@@ -1,5 +1,5 @@
-mbuffer (20090215-1) unstable; urgency=low
+mbuffer (20090628-1) unstable; urgency=low
 
   * Initial release (Closes: #534216)
 
- -- Peter Pentchev <roam@ringlet.net>  Mon, 22 Jun 2009 15:50:59 +0300
+ -- Peter Pentchev <roam@ringlet.net>  Wed, 19 Aug 2009 16:24:08 +0300
