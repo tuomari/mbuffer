@@ -1,6 +1,6 @@
 Description: Make the test suite clean up after itself.
  While I'm here, also make it a bit more configurable.
-Forwarded: no
+Forwarded: yes
 Author: Peter Pentchev <roam@ringlet.net>
 Last-Update: 2009-12-10
 

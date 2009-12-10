@@ -1,6 +1,6 @@
 Description: Do not look for hstrerror(3) in libresolv.
  The libraries needed for hstrerror(3) have already been determined above.
-Forwarded: no
+Forwarded: yes
 Author: Peter Pentchev <roam@ringlet.net>
 Last-Update: 2009-12-10
 
