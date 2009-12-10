@@ -1,2 +1,3 @@
 01-md5-gnutls.patch
 02-test-cleanup.patch
+03-hstrerror-lresolv.patch
