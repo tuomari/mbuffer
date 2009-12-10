@@ -2,7 +2,7 @@ Use the MD5 routines from GnuTLS instead of OpenSSL.
 
 --- a/configure
 +++ b/configure
-@@ -5758,7 +5758,7 @@
+@@ -4912,7 +4912,7 @@
    return 0;
  }
  _ACEOF
@@ -13,7 +13,7 @@ Use the MD5 routines from GnuTLS instead of OpenSSL.
    else
 --- a/mbuffer.c
 +++ b/mbuffer.c
-@@ -84,7 +84,7 @@
+@@ -81,7 +81,7 @@
  #define MD5_END(hash,ctxt)	MD5Final(hash,&(ctxt))
  #define HAVE_MD5 1
  #elif defined HAVE_LIBCRYPTO
