@@ -2,9 +2,6 @@
 #
 # Build rules for mbuffer, the stream buffering tool 
 
-patch unpatch:
-	$(MAKE) -f /usr/share/quilt/quilt.make $@
-
 override_dh_auto_configure:
 ifneq "$(wildcard /usr/share/misc/config.sub)" ""
 	cp -f /usr/share/misc/config.sub config.sub
@@ -12,9 +9,9 @@ endif
 ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 	cp -f /usr/share/misc/config.guess config.guess
 endif
-	dh_auto_configure --with quilt -- CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
+	dh_auto_configure -- CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
 
 override_dh_auto_test:
 
 %:
-	dh --with quilt $@
+	dh $@
