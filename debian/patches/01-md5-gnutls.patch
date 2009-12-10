@@ -1,4 +1,8 @@
-Use the MD5 routines from GnuTLS instead of OpenSSL.
+Description: Use the MD5 routines from GnuTLS instead of OpenSSL.
+ Avoid linking to OpenSSL for license reasons.
+Forwarded: not-needed
+Author: Peter Pentchev <roam@ringlet.net>
+Last-Update: 2009-12-10
 
 --- a/configure
 +++ b/configure

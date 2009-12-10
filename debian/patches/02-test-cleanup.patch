@@ -1,5 +1,8 @@
-Make the test suite clean up after itself.
-While I'm here, also make it a bit more configurable.
+Description: Make the test suite clean up after itself.
+ While I'm here, also make it a bit more configurable.
+Forwarded: no
+Author: Peter Pentchev <roam@ringlet.net>
+Last-Update: 2009-12-10
 
 --- a/Makefile.in
 +++ b/Makefile.in
