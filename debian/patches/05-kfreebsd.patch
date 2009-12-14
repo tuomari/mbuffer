@@ -1,4 +1,4 @@
-Description: Fix the build on GNU/kFreeBSD, which does not define __linux__
+Description: Fix the build on GNU/kFreeBSD, which does not define __linux
 Forwarded: no
 Author: Cyril Brulebois <kibi@debian.org>
 Origin: other
