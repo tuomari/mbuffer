@@ -5,7 +5,8 @@
 override_dh_auto_configure:
 	cp -f /usr/share/misc/config.sub config.sub
 	cp -f /usr/share/misc/config.guess config.guess
-	dh_auto_configure -- CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
+	dh_auto_configure -- CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs" \
+		LIBS="-lrt"
 
 override_dh_auto_test:
 

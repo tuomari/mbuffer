@@ -1,8 +1,14 @@
-mbuffer (20091122-2) unstable; urgency=low
+mbuffer (20091213-1) unstable; urgency=low
 
   * Fix FTBFS on GNU/kFreeBSD.  Closes: #560750
   * Honor upstream's preference for libmhash and drop the GnuTLS patch.
     Pointed out by: Mats Erik Andersson <mats.andersson@gisladisker.se>
+  * New upstream version:
+    - integrate the test suite and the hstrerror -lresolv patches
+    - honor the user's CFLAGS, so no need for the CFLAGS patch
+    - link with -lrt for clock_gettime(3) and friends
+    - portability fixes: read a monotonic clock, make IPv6 really optional,
+      check the input device's block size
 
  -- Peter Pentchev <roam@ringlet.net>  Mon, 14 Dec 2009 16:44:11 +0200
 
