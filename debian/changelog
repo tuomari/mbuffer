@@ -1,3 +1,9 @@
+mbuffer (20091122-2) unstable; urgency=low
+
+  * Fix FTBFS on GNU/kFreeBSD.  Closes: #560750
+
+ -- Peter Pentchev <roam@ringlet.net>  Mon, 14 Dec 2009 16:44:11 +0200
+
 mbuffer (20091122-1) unstable; urgency=low
 
   * Initial release (Closes: #534216)

@@ -1,0 +1,30 @@
+Description: Fix the build on GNU/kFreeBSD, which does not define __linux__
+Forwarded: no
+Author: Cyril Brulebois <kibi@debian.org>
+Origin: other
+Bug-Debian: http://bugs.debian.org/560750
+Last-Update: 2009-12-14
+
+--- a/log.c
++++ b/log.c
+@@ -19,7 +19,7 @@
+ 
+ #include "log.h"
+ 
+-#if !(defined(__sun) || defined(__linux))
++#if !(defined(__sun) || defined(__linux) || defined(__GLIBC__))
+ #define NEED_IO_INTERLOCK
+ #endif
+ 
+@@ -28,6 +28,11 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#if defined(linux)
++#include <linux/limits.h>
++#else
++#include <sys/syslimits.h>
++#endif
+ #include <sys/types.h>
+ #include <unistd.h>
+ 

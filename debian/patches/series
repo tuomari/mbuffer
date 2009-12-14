@@ -2,3 +2,4 @@
 02-test-cleanup.patch
 03-hstrerror-lresolv.patch
 04-cflags.patch
+05-kfreebsd.patch
