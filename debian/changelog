@@ -11,7 +11,7 @@ mbuffer (20091213-1) unstable; urgency=low
       check the input device's block size
   * Fix a segfault when terminating in quiet mode.  Closes: #562112.
 
- -- Peter Pentchev <roam@ringlet.net>  Mon, 14 Dec 2009 16:44:11 +0200
+ -- Peter Pentchev <roam@ringlet.net>  Thu, 24 Dec 2009 16:05:37 +0200
 
 mbuffer (20091122-1) unstable; urgency=low
 
