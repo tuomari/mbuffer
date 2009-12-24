@@ -9,6 +9,7 @@ mbuffer (20091213-1) unstable; urgency=low
     - link with -lrt for clock_gettime(3) and friends
     - portability fixes: read a monotonic clock, make IPv6 really optional,
       check the input device's block size
+  * Fix a segfault when terminating in quiet mode.  Closes: #562112.
 
  -- Peter Pentchev <roam@ringlet.net>  Mon, 14 Dec 2009 16:44:11 +0200
 

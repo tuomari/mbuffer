@@ -1,0 +1,18 @@
+Description: Fix a segfault when terminating in quiet (-q) mode.
+Forwarded: no
+Author: Peter Pentchev <roam@ringlet.net>
+Bug-Debian: http://bugs.debian.org/562112
+Last-Update: 2009/12/24
+
+--- a/mbuffer.c
++++ b/mbuffer.c
+@@ -290,7 +290,8 @@
+ 			d->result = "canceled";
+ 		d = d->next;
+ 	} while (d);
+-	(void) pthread_cancel(Reader);
++	if (Status)
++		(void) pthread_cancel(Reader);
+ }
+ 
+ 
