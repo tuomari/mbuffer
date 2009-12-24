@@ -1,5 +1,5 @@
 Description: Fix a segfault when terminating in quiet (-q) mode.
-Forwarded: no
+Forwarded: yes
 Author: Peter Pentchev <roam@ringlet.net>
 Bug-Debian: http://bugs.debian.org/562112
 Last-Update: 2009/12/24

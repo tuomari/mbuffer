@@ -1,5 +1,5 @@
 Description: Fix the build on GNU/kFreeBSD, which does not define __linux
-Forwarded: no
+Forwarded: yes
 Author: Cyril Brulebois <kibi@debian.org>
 Origin: other
 Bug-Debian: http://bugs.debian.org/560750
