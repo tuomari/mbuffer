@@ -1,3 +1,12 @@
+mbuffer (20091227-1) unstable; urgency=low
+
+  * New upstream version:
+    - remove the 05-kfreebsd and 06-signal patches, integrated upstream
+    - reintroduce the 02-test-cleanup patch, since the upstream Makefile
+      needs to be portable and may not afford to use ?=
+
+ -- Peter Pentchev <roam@ringlet.net>  Fri, 12 Feb 2010 12:36:47 +0200
+
 mbuffer (20091213-1) unstable; urgency=low
 
   * Fix FTBFS on GNU/kFreeBSD.  Closes: #560750
