@@ -4,6 +4,7 @@ mbuffer (20091227-1) unstable; urgency=low
     - remove the 05-kfreebsd and 06-signal patches, integrated upstream
     - reintroduce the 02-test-cleanup patch, since the upstream Makefile
       needs to be portable and may not afford to use ?=
+    - remove the explicit -lrt, upstream links against it now
   * Bump Standards-Version to 3.8.4 with no changes.
 
  -- Peter Pentchev <roam@ringlet.net>  Fri, 12 Feb 2010 12:36:47 +0200
