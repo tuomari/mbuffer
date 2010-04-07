@@ -9,6 +9,7 @@ mbuffer (20100327-1) UNRELEASED; urgency=low
     - move the author's name and e-mail to the top-level Maintainer field
     - also remove the Author field from the debian/* section
   * Bump the year in my debian/* copyright notice.
+  * Just set LDFLAGS instead of overriding debhelper's auto_configure.
 
  -- Peter Pentchev <roam@ringlet.net>  Wed, 07 Apr 2010 14:29:36 +0300
 

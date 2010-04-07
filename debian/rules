@@ -2,8 +2,7 @@
 #
 # Build rules for mbuffer, the stream buffering tool 
 
-override_dh_auto_configure:
-	dh_auto_configure -- CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
+export LDFLAGS=-Wl,-z,defs
 
 override_dh_auto_test:
 
