@@ -1,4 +1,4 @@
-mbuffer (20100327-1) UNRELEASED; urgency=low
+mbuffer (20100327-1) unstable; urgency=low
 
   * New upstream version.
     - remove the 07-manpage patch, integrated upstream
@@ -11,7 +11,7 @@ mbuffer (20100327-1) UNRELEASED; urgency=low
   * Bump the year in my debian/* copyright notice.
   * Just set LDFLAGS instead of overriding debhelper's auto_configure.
 
- -- Peter Pentchev <roam@ringlet.net>  Wed, 07 Apr 2010 14:29:36 +0300
+ -- Peter Pentchev <roam@ringlet.net>  Wed, 07 Apr 2010 15:53:50 +0300
 
 mbuffer (20091227-1) unstable; urgency=low
 
