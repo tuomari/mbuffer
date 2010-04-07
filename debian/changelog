@@ -1,3 +1,10 @@
+mbuffer (20100327-1) UNRELEASED; urgency=low
+
+  * New upstream version.
+    - remove the 07-manpage patch, integrated upstream
+
+ -- Peter Pentchev <roam@ringlet.net>  Wed, 07 Apr 2010 14:29:36 +0300
+
 mbuffer (20091227-1) unstable; urgency=low
 
   * New upstream version:
