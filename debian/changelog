@@ -2,6 +2,7 @@ mbuffer (20100327-1) UNRELEASED; urgency=low
 
   * New upstream version.
     - remove the 07-manpage patch, integrated upstream
+    - update the copyright years for mbuffer.c
   * Use the debhelper plugin provided by autotools-dev-20100122.1 to
     refresh the config.sub and config.guess files.
 
