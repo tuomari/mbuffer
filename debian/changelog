@@ -5,6 +5,9 @@ mbuffer (20100327-1) UNRELEASED; urgency=low
     - update the copyright years for mbuffer.c
   * Use the debhelper plugin provided by autotools-dev-20100122.1 to
     refresh the config.sub and config.guess files.
+  * Bring the copyright file up to DEP 5 rev. 135:
+    - move the author's name and e-mail to the top-level Maintainer field
+    - also remove the Author field from the debian/* section
 
  -- Peter Pentchev <roam@ringlet.net>  Wed, 07 Apr 2010 14:29:36 +0300
 

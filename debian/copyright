@@ -1,19 +1,17 @@
-Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=59
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
 Name: mbuffer
+Maintainer: Thomas Maier-Komor <thomas@maier-komor.de>
 Source: http://www.maier-komor.de/mbuffer.html
 
 Files: *
-Author: Thomas Maier-Komor <thomas@maier-komor.de>
 Copyright: Copyright (C) 2000-2009, Thomas Maier-Komor
 License: GPL-3+
 
 Files: mbuffer.c
-Author: Thomas Maier-Komor <thomas@maier-komor.de>
 Copyright: Copyright (C) 2000-2010, Thomas Maier-Komor
 License: GPL-3+
 
 Files: debian/*
-Author: Peter Pentchev <roam@ringlet.net>
 Copyright: Copyright (C) 2009  Peter Pentchev
 License: GPL-3+
 
