@@ -1,5 +1,6 @@
 mbuffer (20100327-1) unstable; urgency=low
 
+  [ Peter Pentchev ]
   * New upstream version.
     - remove the 07-manpage patch, integrated upstream
     - update the copyright years for mbuffer.c
@@ -11,7 +12,10 @@ mbuffer (20100327-1) unstable; urgency=low
   * Bump the year in my debian/* copyright notice.
   * Just set LDFLAGS instead of overriding debhelper's auto_configure.
 
- -- Peter Pentchev <roam@ringlet.net>  Wed, 07 Apr 2010 15:53:50 +0300
+  [ Hector Oron ]
+  * Set DM-Upload-Allowed for Peter Pentchev.
+
+ --  <zumbi@debian.org>  Wed, 07 Apr 2010 13:56:41 +0000
 
 mbuffer (20091227-1) unstable; urgency=low
 

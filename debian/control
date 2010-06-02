@@ -8,6 +8,7 @@ Standards-Version: 3.8.4
 Homepage: http://www.maier-komor.de/mbuffer.html
 Vcs-Svn: http://svn.ringlet.net/svn/ringlet/sysutils/mbuffer/trunk/mbuffer-pkg/debian/
 Vcs-Browser: http://svn.ringlet.net/cgi-bin/viewvc/viewvc.cgi/ringlet/sysutils/mbuffer/trunk/mbuffer-pkg/debian/
+DM-Upload-Allowed: yes
 
 Package: mbuffer
 Architecture: any
