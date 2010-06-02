@@ -1,3 +1,9 @@
+mbuffer (20100526-1) UNRELEASED; urgency=low
+
+  * New upstream release.
+
+ -- Peter Pentchev <roam@ringlet.net>  Wed, 02 Jun 2010 12:29:41 +0300
+
 mbuffer (20100327-1) unstable; urgency=low
 
   [ Peter Pentchev ]
