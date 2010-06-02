@@ -2,7 +2,9 @@
 #
 # Build rules for mbuffer, the stream buffering tool 
 
-export LDFLAGS=-Wl,-z,defs
+export CFLAGS=$(shell dpkg-buildflags --get CFLAGS)
+export CPPFLAGS=$(shell dpkg-buildflags --get CPPFLAGS)
+export LDFLAGS=$(shell dpkg-buildflags --get LDFLAGS) -Wl,-z,defs
 
 override_dh_auto_test:
 
