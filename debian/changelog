@@ -1,3 +1,9 @@
+mbuffer (20100526-2) UNRELEASED; urgency=low
+
+  * Shorten the Vcs-Browser URL.
+
+ -- Peter Pentchev <roam@ringlet.net>  Wed, 23 Jun 2010 15:06:52 +0300
+
 mbuffer (20100526-1) unstable; urgency=low
 
   * New upstream release.
