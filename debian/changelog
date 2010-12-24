@@ -1,4 +1,4 @@
-mbuffer (20100526-3) unstable; urgency=low
+mbuffer (20100526-3) UNRELEASED; urgency=low
 
   * Switch to Git and point the Vcs-* fields to Gitorious.
   * Bump Standards-Version to 3.9.1 with no changes.
