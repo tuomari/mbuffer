@@ -3,6 +3,8 @@ mbuffer (20100526-3) unstable; urgency=low
   * Switch to Git and point the Vcs-* fields to Gitorious.
   * Bump Standards-Version to 3.9.1 with no changes.
   * Switch to bzip2 compression for the Debian tarball.
+  * Bump the debhelper compatibility level to 8 and reorder
+    the dh(1) arguments.
 
  -- Peter Pentchev <roam@ringlet.net>  Fri, 24 Dec 2010 23:30:44 +0200
 

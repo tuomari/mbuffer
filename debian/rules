@@ -9,4 +9,4 @@ export LDFLAGS=$(shell dpkg-buildflags --get LDFLAGS) -Wl,-z,defs
 override_dh_auto_test:
 
 %:
-	dh --with autotools_dev $@
+	dh $@ --with autotools_dev
