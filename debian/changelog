@@ -6,6 +6,8 @@ mbuffer (20101230-1) UNRELEASED; urgency=low
   * Bump the debhelper compatibility level to 8 and reorder
     the dh(1) arguments.
   * New upstream release.
+  * Convert the copyright file to DEP 5 rev. 153 (candidate) and
+    bump the year on my copyright notice.
 
  -- Peter Pentchev <roam@ringlet.net>  Fri, 24 Dec 2010 23:30:44 +0200
 
