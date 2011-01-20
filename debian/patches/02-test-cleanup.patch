@@ -4,11 +4,11 @@ Description: Make the test suite a bit more configurable.
  Debian understands ?=, so use it.
 Forwarded: not-needed
 Author: Peter Pentchev <roam@ringlet.net>
-Last-Update: 2010-02-12
+Last-Update: 2011-01-20
 
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -19,7 +19,7 @@
+@@ -20,7 +20,7 @@
  SOURCES		= log.c network.c mbuffer.c
  OBJECTS		= $(SOURCES:.c=.o)
  
