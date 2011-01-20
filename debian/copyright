@@ -1,4 +1,4 @@
-Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=153
+Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=153
 Upstream-Name: mbuffer
 Upstream-Contact: Thomas Maier-Komor <thomas@maier-komor.de>
 Source: http://www.maier-komor.de/mbuffer.html
