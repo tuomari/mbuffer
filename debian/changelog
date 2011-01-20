@@ -1,11 +1,11 @@
-mbuffer (20101230-1) UNRELEASED; urgency=low
+mbuffer (20110119-1) UNRELEASED; urgency=low
 
   * Switch to Git and point the Vcs-* fields to Gitorious.
   * Bump Standards-Version to 3.9.1 with no changes.
   * Switch to bzip2 compression for the Debian tarball.
   * Bump the debhelper compatibility level to 8 and reorder
     the dh(1) arguments.
-  * New upstream release.
+  * New upstream release (10th anniversary!)
   * Convert the copyright file to DEP 5 rev. 153 (candidate) and
     bump the year on my copyright notice.
 
