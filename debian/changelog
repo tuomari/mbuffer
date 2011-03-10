@@ -1,3 +1,10 @@
+mbuffer (20110119-2) UNRELEASED; urgency=low
+
+  * Fix the watchfile: the upstream download page's URLs are fully
+    qualified now.
+
+ -- Peter Pentchev <roam@ringlet.net>  Thu, 10 Mar 2011 14:04:33 +0200
+
 mbuffer (20110119-1) experimental; urgency=low
 
   * Switch to Git and point the Vcs-* fields to Gitorious.
