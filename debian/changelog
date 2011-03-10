@@ -2,6 +2,8 @@ mbuffer (20110119-2) UNRELEASED; urgency=low
 
   * Fix the watchfile: the upstream download page's URLs are fully
     qualified now.
+  * Fix the FTBFS on GNU/Hurd by trying fpathconf() before PIPE_BUF and
+    checking for several more constants if that fails.
 
  -- Peter Pentchev <roam@ringlet.net>  Thu, 10 Mar 2011 14:04:33 +0200
 
