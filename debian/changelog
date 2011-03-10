@@ -4,6 +4,8 @@ mbuffer (20110119-2) UNRELEASED; urgency=low
     qualified now.
   * Fix the FTBFS on GNU/Hurd by trying fpathconf() before PIPE_BUF and
     checking for several more constants if that fails.
+  * Update the copyright file to the latest DEP 5 candidate format and
+    add the GPL-3+ license in the header, too, just in case.
 
  -- Peter Pentchev <roam@ringlet.net>  Thu, 10 Mar 2011 14:04:33 +0200
 
