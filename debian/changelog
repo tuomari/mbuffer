@@ -1,4 +1,4 @@
-mbuffer (20110119-2) UNRELEASED; urgency=low
+mbuffer (20110119-2) unstable; urgency=low
 
   * Fix the watchfile: the upstream download page's URLs are fully
     qualified now.
@@ -6,8 +6,9 @@ mbuffer (20110119-2) UNRELEASED; urgency=low
     checking for several more constants if that fails.
   * Update the copyright file to the latest DEP 5 candidate format and
     add the GPL-3+ license in the header, too, just in case.
+  * Upload to unstable.
 
- -- Peter Pentchev <roam@ringlet.net>  Thu, 10 Mar 2011 14:04:33 +0200
+ -- Peter Pentchev <roam@ringlet.net>  Thu, 10 Mar 2011 14:54:13 +0200
 
 mbuffer (20110119-1) experimental; urgency=low
 
