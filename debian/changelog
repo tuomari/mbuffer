@@ -1,4 +1,4 @@
-mbuffer (20110119-1) UNRELEASED; urgency=low
+mbuffer (20110119-1) experimental; urgency=low
 
   * Switch to Git and point the Vcs-* fields to Gitorious.
   * Bump Standards-Version to 3.9.1 with no changes.
@@ -9,7 +9,7 @@ mbuffer (20110119-1) UNRELEASED; urgency=low
   * Convert the copyright file to DEP 5 rev. 153 (candidate) and
     bump the year on my copyright notice.
 
- -- Peter Pentchev <roam@ringlet.net>  Fri, 24 Dec 2010 23:30:44 +0200
+ -- Peter Pentchev <roam@ringlet.net>  Thu, 20 Jan 2011 16:52:02 +0200
 
 mbuffer (20100526-2) unstable; urgency=low
 
