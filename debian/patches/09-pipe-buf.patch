@@ -1,5 +1,5 @@
 Description: Use fpathconf() if PIPE_BUF is not defined.
-Forwarded: no
+Forwarded: yes
 Author: Peter Pentchev <roam@ringlet.net>
 Last-Update: 2011-03-10
 
