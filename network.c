@@ -51,7 +51,11 @@ void *alloca(size_t);
 
 extern int In;
 int32_t TCPBufSize = 1 << 20;
+#if defined(PF_INET6) && defined(PF_UNSPEC)
 int AddrFam = PF_UNSPEC;
+#else
+int AddrFam = PF_INET;
+#endif
 
 
 static void setTCPBufferSize(int sock, unsigned buffer)
