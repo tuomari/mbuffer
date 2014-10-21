@@ -8,6 +8,7 @@ mbuffer (20110119-3) UNRELEASED; urgency=medium
       long satisfied even in oldstable
   * Drop the version in the autotools-dev build dependency.
   * Drop the source compression options; dpkg-dev's defaults are good enough.
+  * Switch the copyright file to the final version of the 1.0 specification.
 
  -- Peter Pentchev <roam@ringlet.net>  Tue, 21 Oct 2014 15:32:10 +0300
 
