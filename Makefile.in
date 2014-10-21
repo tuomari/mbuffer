@@ -42,7 +42,7 @@ install: $(TARGET)
 	$(INSTALL) mbuffer.1 $(DESTDIR)$(mandir)
 
 lint:
-	lint $(CFLAGS) $(SOURCES)
+	lint $(DEFS) $(SOURCES)
 
 check: test0 test1 test2 test3 testcleanup
 
@@ -70,10 +70,10 @@ test1: test.md5
 	touch $@
 
 test2: test.md5
-	./mbuffer -q -I :8000 | openssl md5 > $@.md5 &
+	./mbuffer -q -I :8000 -o $@.tar -o - | openssl md5 > $@.md5 &
 	sleep 1
 	-rm -f $@.tar
-	./mbuffer -i test.tar -o /dev/null -O localhost:8000 -o $@.tar -H
+	./mbuffer -i test.tar -o /dev/null -O localhost:8000 -H
 	wait
 	sync
 	diff $@.md5 test.md5
