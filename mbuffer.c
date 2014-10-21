@@ -48,6 +48,7 @@ typedef int caddr_t;
 #include <termios.h>
 #include <unistd.h>
 
+
 #ifdef __FreeBSD__
 #include <sys/sysctl.h>
 #endif
@@ -159,6 +160,9 @@ static long
 	Multivolume = 0,	/* number of input volumes */
 	Finish = -1,		/* this is for graceful termination */
 	Numblocks = 512;	/* number of buffer blocks */
+
+static clockid_t
+	ClockSrc = CLOCK_REALTIME;
 
 #ifdef __sun
 #include <synch.h>
@@ -422,20 +426,22 @@ static void statusThread(void)
 
 
 
-static inline long long timediff(struct timeval *restrict t1, struct timeval *restrict t2)
+static inline long long timediff(struct timespec *restrict t1, struct timespec *restrict t2)
 {
 	long long tdiff;
 	tdiff = (t1->tv_sec - t2->tv_sec) * 1000000;
-	tdiff += t1->tv_usec - t2->tv_usec;
+	tdiff += (t1->tv_nsec - t2->tv_nsec) / 1000;
+	if (tdiff < 0)
+		tdiff = 0;
 	return tdiff;
 }
 
 
 
-static long long enforceSpeedLimit(unsigned long long limit, long long num, struct timeval *last)
+static long long enforceSpeedLimit(unsigned long long limit, long long num, struct timespec *last)
 {
 	static long long ticktime = 0;
-	struct timeval now;
+	struct timespec now;
 	long long tdiff;
 	double dt;
 	
@@ -443,9 +449,8 @@ static long long enforceSpeedLimit(unsigned long long limit, long long num, stru
 		ticktime = 1000000 / sysconf(_SC_CLK_TCK);
 	}
 	num += Blocksize;
-	(void) gettimeofday(&now,0);
+	(void) clock_gettime(ClockSrc,&now);
 	tdiff = timediff(&now,last);
-	assert(tdiff >= 0);
 	if (num < 0)
 		return num;
 	dt = (double)tdiff * 1E-6;
@@ -456,9 +461,8 @@ static long long enforceSpeedLimit(unsigned long long limit, long long num, stru
 			long long slept;
 			debugmsg("enforceSpeedLimit(%lld,%lld): sleeping for %lld usec\n",limit,num,w);
 			(void) mt_usleep(w);
-			(void) gettimeofday(last,0);
+			(void) clock_gettime(ClockSrc,last);
 			slept = timediff(last,&now);
-			assert(slept >= 0);
 			debugmsg("enforceSpeedLimit(): slept for %lld usec\n",slept);
 			slept -= w;
 			if (slept >= 0)
@@ -565,9 +569,9 @@ static void *inputThread(void *ignored)
 	int at = 0;
 	long long xfer = 0;
 	const double startread = StartRead, startwrite = StartWrite;
-	struct timeval last;
+	struct timespec last;
 
-	(void) gettimeofday(&last,0);
+	(void) clock_gettime(ClockSrc,&last);
 	assert(ignored == 0);
 	infomsg("inputThread: starting...\n");
 	for (;;) {
@@ -1038,10 +1042,10 @@ static void *outputThread(void *arg)
 	const double startwrite = StartWrite, startread = StartRead;
 	unsigned long long blocksize = Blocksize;
 	long long xfer = 0;
-	struct timeval last;
+	struct timespec last;
 
 	/* initialize last to 0, because we don't want to wait initially */
-	(void) gettimeofday(&last,0);
+	(void) clock_gettime(ClockSrc,&last);
 	assert(NumSenders >= 0);
 	if (dest->next) {
 		int ret;
@@ -1255,7 +1259,7 @@ static void usage(void)
 		"usage: mbuffer [Options]\n"
 		"Options:\n"
 		"-b <num>   : use <num> blocks for buffer (default: %ld)\n"
-		"-s <size>  : use block of <size> bytes for buffer (default: %llu)\n"
+		"-s <size>  : use blocks of <size> bytes for processing (default: %llu)\n"
 #if defined(_SC_AVPHYS_PAGES) && defined(_SC_PAGESIZE) && !defined(__CYGWIN__) || defined(__FreeBSD__)
 		"-m <size>  : memory <size> of buffer in b,k,M,G,%% (default: 2%% = %llu%c)\n"
 #else
@@ -1453,6 +1457,10 @@ int main(int argc, const char **argv)
 	sysctlbyname("hw.availpages", &nump, &nump_size, NULL, 0);
 	pgsz = sysconf(_SC_PAGESIZE);
 	assert(pgsz > 0);
+#endif
+#if defined(_POSIX_MONOTONIC_CLOCK) && (_POSIX_MONOTONIC_CLOCK >= 0) && defined(CLOCK_MONOTONIC)
+	if (sysconf(_SC_MONOTONIC_CLOCK) > 0)
+		ClockSrc = CLOCK_MONOTONIC;
 #endif
 	progname = basename(argv0);
 	PrefixLen = strlen(progname) + 2;
@@ -1984,6 +1992,23 @@ int main(int argc, const char **argv)
 		}
 	} else
 		infomsg("no device on output stream\n");
+	debugmsg("checking input device...\n");
+	if (-1 == fstat(In,&st))
+		warningmsg("could not stat input: %s\n",strerror(errno));
+	else if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode)) {
+		infomsg("blocksize is %d bytes on output device\n",st.st_blksize);
+		if ((Blocksize < st.st_blksize) || (Blocksize % st.st_blksize != 0)) {
+			warningmsg("Blocksize should be a multiple of the blocksize of the input device!\n"
+				"Use option -s to adjust transfer block size if you get an out-of-memory error on input.\n"
+				"Blocksize on input device is %d (transfer block size is %lld)\n", st.st_blksize, Blocksize);
+		} else {
+			if (SetOutsize) {
+				infomsg("setting output blocksize to %d\n",st.st_blksize);
+				Outsize = st.st_blksize;
+			}
+		}
+	} else
+		infomsg("no device on input stream\n");
 #else
 	warningmsg("Could not stat output device (unsupported by system)!\n"
 		   "This can result in incorrect written data when\n"
