@@ -8,7 +8,6 @@ Standards-Version: 3.9.1
 Homepage: http://www.maier-komor.de/mbuffer.html
 Vcs-Git: git://gitorious.org/mbuffer/pkg-debian.git
 Vcs-Browser: http://gitorious.org/mbuffer/pkg-debian
-DM-Upload-Allowed: yes
 
 Package: mbuffer
 Architecture: any
