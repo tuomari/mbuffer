@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Peter Pentchev <roam@ringlet.net>
 Build-Depends: debhelper (>> 9), autotools-dev, libmhash-dev
-Standards-Version: 3.9.1
+Standards-Version: 3.9.6
 Homepage: http://www.maier-komor.de/mbuffer.html
 Vcs-Git: git://gitorious.org/mbuffer/pkg-debian.git
 Vcs-Browser: http://gitorious.org/mbuffer/pkg-debian
