@@ -1,3 +1,57 @@
+20140310:
+- added memory advise for buffer memory
+- compatibility fix for Solars st driver
+- prevent buffer overflow attack via defaults file
+- ignore defaults file from other users
+- updated documentation for use with cron
+- minor bugfixes
+
+20140126:
+- new feature: set option defaults in ~/.mbuffer.rc
+- enhancement: write status to the log file
+- enhancement: added option to suppress status logging
+- fix: formatting fix for summary message
+
+20130220:
+- reverted incorrect fix for -P 100, which may lead to data corruption
+- reenable hash libraries (no correlation with data corruption)
+- bail out if any output fails to initialize
+- refixed hang on -P 100
+- reduced sending overhead
+- fixed handling of option -f
+
+20130209:
+- hash names should be compared case insensitive for convenience
+- safeguard against missing argument to option --hash
+- support for hash calculation withdrawn, due to potential data
+corruption, when the buffer runs full
+
+20121111:
+- build fix for some platforms
+- several minor code cleanups (removed some warnings)
+- support float values as argument to memory options
+- added a watchdog that terminates mbuffer if input
+  or output activity stalls (option -W)
+
+20120505:
+- fixed IPv6 client initialization on FreeBSD
+- fix: suppress summary on stderr if -q is used with -l
+- fix: option -P 100 may lead to hang
+
+20110724:
+- fix: garbage might be written after input error
+- enhancement: prompt for additional volumes for argument "-n 0"
+- enhancement: prompt for next volume on I/O error if -n is set
+  (some tape devices incorrectly return -1/EIO instead of 0)
+- enhancement: added option to append to output file
+- update: remove use of deprecated interface sigignore
+
+20110317:
+- fix: terminate ASAP if no working output is available
+- enhancement: added option to terminate on any error
+- fix: mbuffer blocks on SIGTTIN when started in background
+- fix: display correct dimensions (e.g. kiB instead of kB)
+
 20110119:
 - Anniversary: 10 years of mbuffer
 - fix for building on cygwin in a separate directory
