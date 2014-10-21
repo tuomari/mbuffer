@@ -1,0 +1,19 @@
+Source: mbuffer
+Section: utils
+Priority: optional
+Maintainer: Peter Pentchev <roam@ringlet.net>
+Build-Depends: debhelper (>= 7), autotools-dev
+Standards-Version: 3.8.1
+Homepage: http://www.maier-komor.de/mbuffer.html
+Vcs-Svn: http://svn.ringlet.net/svn/ringlet/sysutils/mbuffer/trunk/mbuffer-pkg/debian/
+Vcs-Browser: http://svn.ringlet.net/cgi-bin/viewvc/viewvc.cgi/ringlet/sysutils/mbuffer/trunk/mbuffer-pkg/debian/
+
+Package: mbuffer
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: tool for buffering data streams
+ The mbuffer tool is used to buffer data streams and show the I/O rate and
+ summary to the user.  It is especially useful for writing backups to
+ fast tape drives or streaming them over the network.  If used correctly,
+ it can prevent buffer underruns and speed up the whole backup or
+ transfer process.

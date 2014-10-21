@@ -1,0 +1,27 @@
+Format-Specification: http://wiki.debian.org/Proposals/CopyrightFormat?recall=184
+Upstream-Name: mbuffer
+Upstream-Source: http://www.maier-komor.de/mbuffer.html
+
+Files: *
+Author: Thomas Maier-Komor <thomas@maier-komor.de>
+Copyright: Copyright (C) 2000-2009, Thomas Maier-Komor
+License: GPL-3
+
+Files: debian/*
+Author: Peter Pentchev <roam@ringlet.net>
+Copyright: Copyright (C) 2009  Peter Pentchev
+License: GPL-3
+
+License: GPL-3
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  .
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  .
+  On Debian systems, the complete text of the GNU General Public License
+  version 3 can be found in `/usr/share/common-licenses/GPL-3'.
