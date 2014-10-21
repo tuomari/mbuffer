@@ -1,7 +1,7 @@
 Description: Use fpathconf() if PIPE_BUF is not defined.
 Forwarded: yes
 Author: Peter Pentchev <roam@ringlet.net>
-Last-Update: 2011-03-10
+Last-Update: 2014-10-21
 
 --- a/log.c
 +++ b/log.c
@@ -139,8 +139,8 @@ Last-Update: 2011-03-10
 +		logwrite(buf,s);
  		va_end(val);
  	}
- }
-@@ -193,20 +183,7 @@
+ 	if (ErrorsFatal) {
+@@ -197,20 +187,7 @@
  		b += vsnprintf(b,sizeof(buf)-(b-buf),msg,val);
  		s = b - buf;
  		assert(s < sizeof(buf));

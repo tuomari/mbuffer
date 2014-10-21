@@ -1,0 +1,99 @@
+Description: Properly mark up dashes as such in the manual page.
+Author: Peter Pentchev <roam@ringlet.net>
+Forwarded: not-yet
+Last-Update: 2014-10-21
+
+--- a/mbuffer.1.in
++++ b/mbuffer.1.in
+@@ -14,7 +14,7 @@
+ .TP
+ \fB\-i\fR <\fIfilename\fP>
+ Use \fIfilename\fP as input instead of the standard input (needs to be
+-given for multi volume support). If \fIfilename\fP is -, input is read
++given for multi volume support). If \fIfilename\fP is \-, input is read
+ from standard input.
+ .TP
+ \fB\-I\fR <\fIport\fP>
+@@ -41,13 +41,13 @@
+ Use blocks of \fIsize\fP bytes for buffer (default pagesize of system).
+ .TP
+ \fB\-m\fR <\fIsize\fP>
+-Use a total of \fIsize\fP bytes for buffer (default 2MB) - size can be
++Use a total of \fIsize\fP bytes for buffer (default 2MB) \- size can be
+ set with a trailing character (b and B for Byte, k for kByte, M for
+ MByte, G for Gigabyte, and with % for a percentage of total physical 
+ memory).
+ .TP 
+ \fB\-L\fR
+-Lock buffer in memory - this option is not available for file-based
++Lock buffer in memory \- this option is not available for file-based
+ buffers and requires mbuffer to be set-UID root (use with care).
+ .TP 
+ \fB\-n\fR <\fInum\fP>
+@@ -109,7 +109,7 @@
+ overwrite output file if it exists already
+ .TP 
+ \fB\-c\fR
+-write with synchronous data integrity support - This option forces all
++write with synchronous data integrity support \- This option forces all
+ writes to complete before continuing. This enables errors to be reported
+ earlier and more precisely, but might decrease performance. Especially
+ systems with high level of data integrity support suffer a huge
+@@ -138,10 +138,10 @@
+ O_DIRECT.
+ .TP 
+ \fB\-\-append\fR
+-Open next output file given via option -o in append mode.
++Open next output file given via option \-o in append mode.
+ .TP 
+ \fB\-\-truncate\fR
+-Truncate next output file given via option -o when opening it.
++Truncate next output file given via option \-o when opening it.
+ .TP 
+ \fB\-6\fR
+ Force IPv6 mode for the following network I/O options on command line.
+@@ -170,31 +170,31 @@
+ The default values for following options can be set as \fIkey = value\fP pairs
+ in the ~/.mbuffer.rc file:
+ .br
+-\fIblocksize\fP: block size (option -s)
++\fIblocksize\fP: block size (option \-s)
+ .br
+-\fItimeout\fP: watchdog timeout (option -W)
++\fItimeout\fP: watchdog timeout (option \-W)
+ .br
+-\fItotalmem\fP: total buffer size (option -m)
++\fItotalmem\fP: total buffer size (option \-m)
+ .br
+-\fImaxreadspeed\fP: maximum read speed (option -r)
++\fImaxreadspeed\fP: maximum read speed (option \-r)
+ .br
+-\fImaxwritespeed\fP: maximum write speed (option -R)
++\fImaxwritespeed\fP: maximum write speed (option \-R)
+ .br
+-\fIstartwrite\fP: threshold for start writing (option -P)
++\fIstartwrite\fP: threshold for start writing (option \-P)
+ .br
+-\fIstartread\fP: threshold for start reading (option -p)
++\fIstartread\fP: threshold for start reading (option \-p)
+ .br
+-\fIpause\fP: pause after writing a block (option -u)
++\fIpause\fP: pause after writing a block (option \-u)
+ .br
+-\fInumblocks\fP: number of blocks in buffer (option -b)
++\fInumblocks\fP: number of blocks in buffer (option \-b)
+ .br
+-\fImemlock\fP: lock buffer in memory (option -L)
++\fImemlock\fP: lock buffer in memory (option \-L)
+ .br
+-\fIshowstatus\fP: print transfer status on console (option -q)
++\fIshowstatus\fP: print transfer status on console (option \-q)
+ .br
+-\fIlogstatus\fP: write transfer status to logfile (option -Q)
++\fIlogstatus\fP: write transfer status to logfile (option \-Q)
+ .br
+-\fItcpbuffer\fP: TCP buffer size (option --tcpbuffer)
++\fItcpbuffer\fP: TCP buffer size (option \-\-tcpbuffer)
+ .br
+ 
+ 

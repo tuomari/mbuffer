@@ -1,2 +1,3 @@
 02-test-cleanup.patch
 09-pipe-buf.patch
+10-manpage-dashes.patch
