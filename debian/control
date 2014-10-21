@@ -10,6 +10,7 @@ Vcs-Browser: http://gitorious.org/mbuffer/pkg-debian
 
 Package: mbuffer
 Architecture: any
+Multi-Arch: foreign
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: tool for buffering data streams
  The mbuffer tool is used to buffer data streams and show the I/O rate and

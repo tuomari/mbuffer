@@ -11,6 +11,7 @@ mbuffer (20110119-3) UNRELEASED; urgency=medium
   * Switch the copyright file to the final version of the 1.0 specification
     and bump the year of my debian/* copyright notice.
   * Bump Standards-Version to 3.9.6 with no changes.
+  * Mark the binary package as Multi-Arch: foreign.
 
  -- Peter Pentchev <roam@ringlet.net>  Tue, 21 Oct 2014 15:32:10 +0300
 
