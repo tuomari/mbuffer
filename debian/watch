@@ -1,2 +1,2 @@
 version=3
-http://www.maier-komor.de/mbuffer.html http://www.maier-komor.de/software/mbuffer/mbuffer-(\d+)\.tgz
+http://www.maier-komor.de/mbuffer.html .*software/mbuffer/mbuffer-(\d+)\.tgz
