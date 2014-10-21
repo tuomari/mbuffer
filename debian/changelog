@@ -13,6 +13,7 @@ mbuffer (20110119-3) UNRELEASED; urgency=medium
   * Bump Standards-Version to 3.9.6 with no changes.
   * Mark the binary package as Multi-Arch: foreign.
   * Add a debian/upstream/metadata file.
+  * Switch the Vcs-* fields to the full-source Git repository.
 
  -- Peter Pentchev <roam@ringlet.net>  Tue, 21 Oct 2014 15:32:10 +0300
 
