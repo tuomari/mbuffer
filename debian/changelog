@@ -6,6 +6,7 @@ mbuffer (20110119-3) UNRELEASED; urgency=medium
     - get the build hardening flags directly from debhelper
     - drop the dpkg-dev versioned dependency (for dpkg-buildflags),
       long satisfied even in oldstable
+  * Drop the version in the autotools-dev build dependency.
 
  -- Peter Pentchev <roam@ringlet.net>  Tue, 21 Oct 2014 15:32:10 +0300
 
