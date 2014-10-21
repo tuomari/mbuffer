@@ -42,6 +42,7 @@ typedef int caddr_t;
 #include <strings.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <termios.h>
@@ -71,10 +72,6 @@ typedef int caddr_t;
 
 #ifdef HAVE_LIBMHASH
 #include <mhash.h>
-static MHASH MD5ctxt;
-#define MD5_INIT(ctxt)		if ((ctxt = mhash_init(MHASH_MD5)) == MHASH_FAILED) abort()
-#define MD5_UPDATE(ctxt,at,num) mhash(ctxt,at,num)
-#define MD5_END(hash,ctxt)	mhash_deinit(ctxt,hash)
 #define HAVE_MD5 1
 #elif defined HAVE_LIBMD5
 #include <md5.h>
@@ -139,11 +136,11 @@ static long
 static unsigned long
 	Outsize = 10240;
 static volatile int
-	Finish = -1,	/* this is for graceful termination */
 	Terminate = 0,	/* abort execution, because of error or signal */
 	EmptyCount = 0,	/* counter incremented when buffer runs empty */
 	FullCount = 0,	/* counter incremented when buffer gets full */
 	NumSenders = -1,/* number of sender threads */
+	Done = 0,
 	MainOutOK = 1;	/* is the main outputThread still writing or just coordinating senders */
 static unsigned long long
 	Blocksize = 10240, MaxReadSpeed = 0, MaxWriteSpeed = 0, OutVolsize = 0;
@@ -156,19 +153,32 @@ static char
 static const char
 	*Infile = 0, *Autoload_cmd = 0;
 static int
-	Multivolume = 0, Memlock = 0, TermQ[2],
-#if defined HAVE_MD5
-	Hash = 0,
-#endif
-	Direct = 0, Numblocks = 512, SetOutsize = 0;
+	Memlock = 0, TermQ[2],
+	Hashers = 0, Direct = 0, SetOutsize = 0;
+static long
+	Multivolume = 0,	/* number of input volumes */
+	Finish = -1,		/* this is for graceful termination */
+	Numblocks = 512;	/* number of buffer blocks */
 
 #ifdef __sun
 #include <synch.h>
 #define sem_t sema_t
 #define sem_init(a,b,c) sema_init(a,c,USYNC_THREAD,0)
-#define sem_wait sema_wait
 #define sem_post sema_post
 #define sem_getvalue(a,b) ((*(b) = (a)->count), 0)
+#if defined(__SunOS_5_8) || defined(__SunOS_5_9)
+#define sem_wait SemWait
+int SemWait(sema_t *s)
+{
+	int err;
+	do {
+		err = sema_wait(s);
+	} while (err == EINTR);
+	return err;
+}
+#else
+#define sem_wait sema_wait
+#endif
 #endif
 
 static sem_t Dev2Buf, Buf2Dev;
@@ -230,24 +240,6 @@ static void summary(unsigned long long numb, int numthreads)
 	(void) gettimeofday(&now,0);
 	if (Status)
 		*msg++ = '\n';
-#if defined(HAVE_MD5)
-	if ((Hash == 1) && (Terminate == 0)) {
-		unsigned char hashvalue[16];
-		int i;
-		
-		MD5_END(hashvalue,MD5ctxt);
-		msg += sprintf(msg,"md5 hash:");
-		for (i = 0; i < 16; ++i)
-			msg += sprintf(msg," %02x",(unsigned int)hashvalue[i]);
-		*msg++ = '\n';
-	}
-#endif
-	if (Status == 0) {
-		if (Log != STDERR_FILENO)
-			(void) write(Log,buf,msg-buf);
-		(void) write(STDERR_FILENO,buf,msg-buf);
-		return;
-	}
 	if ((Terminate == 1) && (numthreads == 0))
 		numthreads = 1;
 	secs = now.tv_sec - Starttime.tv_sec + (double) now.tv_usec / 1000000 - (double) Starttime.tv_usec / 1000000;
@@ -258,9 +250,9 @@ static void summary(unsigned long long numb, int numthreads)
 	m = (int) (secs - h * 3600)/60;
 	secs -= m * 60 + h * 3600;
 	if (numthreads > 1)
-		msg += sprintf(msg,"\nsummary: %d x ",numthreads);
+		msg += sprintf(msg,"summary: %d x ",numthreads);
 	else
-		msg += sprintf(msg,"\nsummary: ");
+		msg += sprintf(msg,"summary: ");
 	msg += kb2str(msg,numb);
 	msg += sprintf(msg,"Byte in ");
 	if (h > 0)
@@ -306,6 +298,7 @@ static RETSIGTYPE sigHandler(int signr)
 	case SIGINT:
 		ErrorOccurred = 1;
 		Terminate = 1;
+		(void) close(In);
 		if (TermQ[1] != -1) {
 			(void) write(TermQ[1],"0",1);
 		}
@@ -366,7 +359,7 @@ static void statusThread(void)
  		default: abort();
  		}
  	}
-	while (((Finish == -1) || (unwritten != 0)) && (Terminate == 0)) {
+	while (!Done) {
 		int err,numsender;
 		ssize_t nw;
 		char buf[256], *b = buf;
@@ -400,7 +393,7 @@ static void statusThread(void)
 		fill = (fill < 0.0) ? 0.0 : fill;
 		b += sprintf(b,"\rin @ ");
 		b += kb2str(b,in);
-		numsender = NumSenders + MainOutOK;
+		numsender = NumSenders + MainOutOK - Hashers;
 		b += sprintf(b,"B/s, out @ ");
 		b += kb2str(b, out * numsender);
 		if (numsender != 1)
@@ -597,15 +590,16 @@ static void *inputThread(void *ignored)
 			err = pthread_mutex_unlock(&LowMut);
 			assert(err == 0);
 		}
-		err = sem_wait(&Dev2Buf); /* Wait for one or more buffer blocks to be free */
-		assert(err == 0);
 		if (Terminate) {	/* for async termination requests */
 			debugmsg("inputThread: terminating early upon request...\n");
 			if (-1 == close(In))
 				errormsg("error closing input: %s\n",strerror(errno));
-			pthread_exit((void *)1);
-			return 0;	/* just to make lint happy... */
+			if (Status)
+				pthread_exit((void *)1);
+			return (void *) 1;
 		}
+		err = sem_wait(&Dev2Buf); /* Wait for one or more buffer blocks to be free */
+		assert(err == 0);
 		num = 0;
 		do {
 			int in;
@@ -614,7 +608,8 @@ static void *inputThread(void *ignored)
 			if ((0 == in) && (Terminal||Autoloader) && (Multivolume)) {
 				requestInputVolume();
 			} else if (-1 == in) {
-				errormsg("inputThread: error reading at offset 0x%llx: %s\n",Numin*Blocksize,strerror(errno));
+				if (Terminate == 0)
+					errormsg("inputThread: error reading at offset 0x%llx: %s\n",Numin*Blocksize,strerror(errno));
 				if (num) {
 					Finish = at;
 					Rest = num;
@@ -634,15 +629,13 @@ static void *inputThread(void *ignored)
 				err = pthread_mutex_unlock(&HighMut);
 				assert(err == 0);
 				infomsg("inputThread: exiting...\n");
-				pthread_exit((void *) -1);
+				if (Status)
+					pthread_exit((void *) -1);
+				return (void *) -1;
 			} else if (0 == in) {
 				Rest = num;
 				Finish = at;
 				debugmsg("inputThread: last block has %llu bytes\n",num);
-				#ifdef HAVE_MD5
-				if (Hash)
-					MD5_UPDATE(MD5ctxt,Buffer[at],num);
-				#endif
 				err = pthread_mutex_lock(&HighMut);
 				assert(err == 0);
 				err = sem_post(&Buf2Dev);
@@ -652,14 +645,12 @@ static void *inputThread(void *ignored)
 				err = pthread_mutex_unlock(&HighMut);
 				assert(err == 0);
 				infomsg("inputThread: exiting...\n");
-				pthread_exit(0);
+				if (Status)
+					pthread_exit(0);
+				return 0;
 			}
 			num += in;
 		} while (num < Blocksize);
-		#ifdef HAVE_MD5
-		if (Hash)
-			MD5_UPDATE(MD5ctxt,Buffer[at],num);
-		#endif
 		if (MaxReadSpeed)
 			xfer = enforceSpeedLimit(MaxReadSpeed,xfer,&last);
 		err = sem_post(&Buf2Dev);
@@ -700,16 +691,16 @@ static inline int syncSenders(char *b, int s)
 	if (s < 0)
 		--NumSenders;
 	if (--ActSenders) {
-		//debugmsg("syncSenders(%p,%d): ActSenders = %d\n",b,s,ActSenders);
+		debugiomsg("syncSenders(%p,%d): ActSenders = %d\n",b,s,ActSenders);
 		pthread_cleanup_push(releaseLock,&SendMut);
 		err = pthread_cond_wait(&SendCond,&SendMut);
 		assert(err == 0);
 		pthread_cleanup_pop(1);
-		//debugmsg("syncSenders(): continue\n");
+		debugiomsg("syncSenders(): continue\n");
 		return 0;
 	} else {
 		ActSenders = NumSenders + 1;
-		assert(buf);
+		assert((buf != 0) || Terminate);
 		SendAt = buf;
 		SendSize = size;
 		buf = 0;
@@ -717,7 +708,7 @@ static inline int syncSenders(char *b, int s)
 		assert(err == 0);
 		err = sem_post(&Dev2Buf);
 		assert(err == 0);
-		/*debugmsg("syncSenders(): send %d@%p, BROADCAST\n",SendSize,SendAt);*/
+		debugiomsg("syncSenders(): send %d@%p, BROADCAST\n",SendSize,SendAt);
 		err = pthread_cond_broadcast(&SendCond);
 		assert(err == 0);
 		return 1;
@@ -728,9 +719,9 @@ static inline int syncSenders(char *b, int s)
 
 static inline void terminateSender(int fd, dest_t *d, int ret)
 {
-	int err;
 	debugmsg("terminating operation on %s\n",d->arg);
 	if (-1 != fd) {
+		int err;
 		infomsg("syncing %s...\n",d->arg);
 		do 
 			err = fsync(fd);
@@ -799,6 +790,7 @@ static void *senderThread(void *arg)
 			return 0;	/* for lint */
 		}
 		if (Terminate) {
+			infomsg("senderThread(\"%s\"): terminating early upon request...\n",dest->arg);
 			dest->result = "canceled";
 			terminateSender(out,dest,1);
 		}
@@ -833,6 +825,69 @@ static void *senderThread(void *arg)
 	}
 }
 
+
+
+void *hashThread(void *arg)
+{
+#ifdef HAVE_MD5
+	dest_t *dest = (dest_t *) arg;
+#ifdef HAVE_LIBMHASH
+	int algo = dest->fd;
+
+	MHASH ctxt = mhash_init(algo);
+	assert(ctxt != MHASH_FAILED);
+#else
+	MD5_INIT(MD5ctxt);
+#endif
+	debugmsg("hashThread(): starting...\n");
+	for (;;) {
+		int size;
+
+		(void) syncSenders(0,0);
+		size = SendSize;
+		if (0 == size) {
+			size_t ds;
+			unsigned char hashvalue[128];
+			char *msg, *m;
+			const char *an;
+			int i;
+			
+			msg = malloc(300);
+			m = msg;
+			debugmsg("hashThread(): done.\n");
+#ifdef HAVE_LIBMHASH
+			mhash_deinit(ctxt,hashvalue);
+			an = (const char *) mhash_get_hash_name_static(algo);
+			ds = mhash_get_block_size(algo);
+#else
+			MD5_END(hashvalue,MD5ctxt);
+			an = "md5";
+			ds = 16;
+#endif
+			assert(sizeof(hashvalue) >= ds);
+			m += sprintf(m,"%s hash: ",an);
+			for (i = 0; i < ds; ++i)
+				m += sprintf(m,"%02x",(unsigned int)hashvalue[i]);
+			*m++ = '\n';
+			*m = 0;
+			dest->result = msg;
+			pthread_exit((void *) msg);
+			return 0;	/* for lint */
+		}
+		if (Terminate) {
+			(void) syncSenders(0,-1);
+			infomsg("hashThread(): terminating early upon request...\n");
+			pthread_exit((void *) 0);
+		}
+		debugiomsg("hashThread(): hashing %d@0x%p\n",size,(void*)SendAt);
+#ifdef HAVE_LIBMHASH
+		mhash(ctxt,SendAt,size);
+#else
+		MD5_UPDATE(MD5ctxt,SendAt,size);
+#endif
+	}
+#endif
+}
 
 
 static int requestOutputVolume(int out, const char *outfile)
@@ -918,10 +973,10 @@ static int requestOutputVolume(int out, const char *outfile)
 
 static int checkIncompleteOutput(int out, const char *outfile)
 {
-	static int mulretry = 0;	/* well this isn't really good design,
+	static unsigned long mulretry = 0;	/* well this isn't really good design,
 					   but better than a global variable */
 	
-	debugmsg("Outblocksize = %d, mulretry = %d\n",Outblocksize,mulretry);
+	debugmsg("Outblocksize = %ld, mulretry = %lu\n",Outblocksize,mulretry);
 	if ((0 != mulretry) || (0 == Outblocksize)) {
 		out = requestOutputVolume(out,outfile);
 		debugmsg("resetting outputsize to normal\n");
@@ -943,7 +998,7 @@ static void terminateOutputThread(dest_t *d, int status)
 {
 	int err;
 
-	infomsg("outputThread: syncing...\n");
+	infomsg("outputThread: syncing %s...\n",d->arg);
 	do 
 		err = fsync(d->fd);
 	while ((err != 0) && (errno == EINTR));
@@ -962,6 +1017,11 @@ static void terminateOutputThread(dest_t *d, int status)
 		if (err == -1)
 			errormsg("error writing to termination queue: %s\n",strerror(errno));
 	}
+	if (status) {
+		(void) sem_post(&Dev2Buf);
+		(void) pthread_cond_broadcast(&SendCond);
+	}
+	Done = 1;
 	pthread_exit((void *)status);
 }
 
@@ -971,7 +1031,7 @@ static void *outputThread(void *arg)
 {
 	dest_t *dest = (dest_t *) arg;
 	unsigned at = 0;
-	int fill = 0, haderror = 0, out, ret, multipleSenders = NumSenders > 0;
+	int fill = 0, haderror = 0, out, multipleSenders;
 #ifdef HAVE_SENDFILE
 	int sendout = 1;
 #endif
@@ -984,6 +1044,7 @@ static void *outputThread(void *arg)
 	(void) gettimeofday(&last,0);
 	assert(NumSenders >= 0);
 	if (dest->next) {
+		int ret;
 		dest_t *d = dest->next;
 		debugmsg("NumSenders = %d\n",NumSenders);
 		ActSenders = NumSenders + 1;
@@ -992,25 +1053,44 @@ static void *outputThread(void *arg)
 		ret = pthread_cond_init(&SendCond,0);
 		assert(ret == 0);
 		do {
-			if (d->fd != -1) {
+			if (d->arg == 0) {
+				debugmsg("creating hash thread with algorithm %s\n",d->name);
+				ret = pthread_create(&d->thread,0,hashThread,d);
+				assert(ret == 0);
+			} else if (d->fd != -1) {
 				debugmsg("creating sender for %s\n",d->arg);
 				ret = pthread_create(&d->thread,0,senderThread,d);
 				assert(ret == 0);
-			} else  {
+			} else {
 				debugmsg("outputThread: ignoring destination %s\n",d->arg);
 				d->name = 0;
 			}
 			d = d->next;
 		} while (d);
 	}
+	multipleSenders = (NumSenders > 0);
 	dest->result = 0;
 	out = dest->fd;
-	infomsg("outputThread: starting output on %s...\n",dest->arg);
+	if (startwrite > 0) {
+		int err;
+		err = pthread_mutex_lock(&HighMut);
+		assert(err == 0);
+		debugmsg("outputThread: delaying start until buffer reaches high watermark\n");
+		pthread_cleanup_push(releaseLock,&HighMut);
+		err = pthread_cond_wait(&PercHigh,&HighMut);
+		assert(err == 0);
+		pthread_cleanup_pop(0);
+		debugmsg("outputThread: high watermark reached, starting...\n");
+		err = pthread_mutex_unlock(&HighMut);
+		assert(err == 0);
+	} else
+		infomsg("outputThread: starting output on %s...\n",dest->arg);
 	for (;;) {
 		unsigned long long rest = blocksize;
 		int err;
 
-		if (startwrite > 0) {
+		if ((startwrite > 0) && (fill <= 0)) {
+			assert(fill == 0);
 			err = pthread_mutex_lock(&HighMut);
 			assert(err == 0);
 			err = sem_getvalue(&Buf2Dev,&fill);
@@ -1026,13 +1106,12 @@ static void *outputThread(void *arg)
 			}
 			err = pthread_mutex_unlock(&HighMut);
 			assert(err == 0);
-		}
+		} else
+			--fill;
 		err = sem_wait(&Buf2Dev);
 		assert(err == 0);
 		if (Terminate) {
-			debugmsg("outputThread: terminating upon termination request...\n");
-			if (-1 == close(dest->fd)) 
-				errormsg("error closing output %s: %s\n",dest->arg,strerror(errno));
+			infomsg("outputThread: terminating upon termination request...\n");
 			dest->result = "canceled";
 			terminateOutputThread(dest,1);
 		}
@@ -1073,7 +1152,7 @@ static void *outputThread(void *arg)
 			if (sendout) {
 				off_t baddr = (off_t) (Buffer[at] + blocksize - rest);
 				num = sendfile(out,SFV_FD_SELF,&baddr,(size_t)(rest > Outsize ? Outsize : rest));
-				debugmsg("outputThread: sendfile(out, SFV_FD_SELF, &(Buffer[%d] + %llu), %llu) = %d\n", at, blocksize - rest, rest > Outsize ? Outsize : rest, num);
+				debugiomsg("outputThread: sendfile(out, SFV_FD_SELF, &(Buffer[%d] + %llu), %llu) = %d\n", at, blocksize - rest, rest > Outsize ? Outsize : rest, num);
 				if ((num == -1) && ((errno == EOPNOTSUPP) || (errno == EINVAL))) {
 					infomsg("sendfile not supported - falling back to write...\n");
 					sendout = 0;
@@ -1083,7 +1162,7 @@ static void *outputThread(void *arg)
 #endif
 			{
 				num = write(out,Buffer[at] + blocksize - rest, rest > Outsize ? Outsize : rest);
-				debugmsg("outputThread: writing %lld@0x%p: ret = %d\n",rest > Outsize ? Outsize : rest,Buffer[at] + blocksize - rest,num);
+				debugiomsg("outputThread: writing %lld@0x%p: ret = %d\n",rest > Outsize ? Outsize : rest,Buffer[at] + blocksize - rest,num);
 			}
 			if ((-1 == num) && (Terminal||Autoloader) && ((errno == ENOMEM) || (errno == ENOSPC))) {
 				/* request a new volume - but first check
@@ -1109,7 +1188,7 @@ static void *outputThread(void *arg)
 			}
 			rest -= num;
 		} while (rest > 0);
-		if (Dest->next == 0) {
+		if (multipleSenders == 0) {
 			err = sem_post(&Dev2Buf);
 			assert(err == 0);
 		}
@@ -1175,7 +1254,7 @@ static void usage(void)
 	(void) fprintf(stderr,
 		"usage: mbuffer [Options]\n"
 		"Options:\n"
-		"-b <num>   : use <num> blocks for buffer (default: %d)\n"
+		"-b <num>   : use <num> blocks for buffer (default: %ld)\n"
 		"-s <size>  : use block of <size> bytes for buffer (default: %llu)\n"
 #if defined(_SC_AVPHYS_PAGES) && defined(_SC_PAGESIZE) && !defined(__CYGWIN__) || defined(__FreeBSD__)
 		"-m <size>  : memory <size> of buffer in b,k,M,G,%% (default: 2%% = %llu%c)\n"
@@ -1213,6 +1292,7 @@ static void usage(void)
 #if defined HAVE_LIBCRYPTO || defined HAVE_LIBMD5 || defined HAVE_LIBMHASH
 		"-H\n"
 		"--md5      : generate md5 hash of transfered data\n"
+		"--hash <a> : use alogritm <a>, if <a> is 'list' possible algorithms are listed\n"
 #endif
 		"-4         : force use of IPv4\n"
 		"-6         : force use of IPv6\n"
@@ -1307,11 +1387,47 @@ static int argcheck(const char *opt, const char **argv, int *c, int argc)
 
 
 
+static void addHashAlgorithm(const char *name)
+{
+	const char *algoname = "";
+	int algo = 0;
+#if HAVE_LIBMHASH
+	int numalgo = mhash_count();
+
+	while (algo <= numalgo) {
+		algoname = (const char *) mhash_get_hash_name_static(algo);
+		if (algoname && (strcmp(algoname,name) == 0))
+			break;
+		++algo;
+	}
+#else
+	algoname = "MD5";
+#endif
+	if (strcmp(algoname,name) == 0) {
+		dest_t *dest = malloc(sizeof(dest_t));
+		bzero(dest,sizeof(dest_t));
+		dest->name = name;
+		dest->fd = algo;
+		if (Dest) {
+			dest->next = Dest->next;
+			Dest->next = dest;
+		} else {
+			Dest = dest;
+			dest->next = 0;
+		}
+		debugmsg("enabled hash algorithm %s\n",name);
+		++NumSenders;
+		++Hashers;
+	} else
+		fatal("invalid or unsupported hash function %s\n",name);
+}
+
+
 int main(int argc, const char **argv)
 {
 	unsigned long long totalmem = 0;
 	long mxnrsem;
-	int err, optMset = 0, optSset = 0, optBset = 0, c, fl, numstdout = 0, numthreads = 0;
+	int err, optMset = 0, optSset = 0, optBset = 0, c, fl, numstdout = 0, numthreads = 0, numOut = 0;
 	sigset_t       signalSet;
 #ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
 	struct stat st;
@@ -1450,6 +1566,7 @@ int main(int argc, const char **argv)
 			Dest = dest;
 			if (outfile == 0)
 				outfile = argv[c];
+			++numOut;
 			++NumSenders;
 		} else if (!strcmp("-0",argv[c])) {
 			AddrFam = AF_UNSPEC;
@@ -1461,9 +1578,14 @@ int main(int argc, const char **argv)
 			initNetworkInput(argv[c]);
 		} else if (!argcheck("-O",argv,&c,argc)) {
 			dest_t *d = createNetworkOutput(argv[c]);
-			d->next = Dest;
-			Dest = d;
-			++NumSenders;
+			if (d->fd == -1) {
+				free(d);
+			} else {
+				d->next = Dest;
+				Dest = d;
+				++NumSenders;
+			}
+			++numOut;
 		} else if (!argcheck("-T",argv,&c,argc)) {
 			Tmpfile = malloc(strlen(argv[c]) + 1);
 			if (!Tmpfile)
@@ -1473,7 +1595,7 @@ int main(int argc, const char **argv)
 			debugmsg("Tmpfile = %s\n",Tmpfile);
 		} else if (!strcmp("-t",argv[c])) {
 			Memmap = 1;
-			debugmsg("mm = 1\n");
+			debugmsg("Memmap = 1\n");
 		} else if (!argcheck("-l",argv,&c,argc)) {
 			Log = open(argv[c],O_WRONLY|O_APPEND|O_TRUNC|O_CREAT|LARGEFILE,0666);
 			if (-1 == Log) {
@@ -1537,12 +1659,35 @@ int main(int argc, const char **argv)
 		} else if (!strcmp("--version",argv[c]) || !strcmp("-V",argv[c])) {
 			version();
 		} else if (!strcmp("--md5",argv[c]) || !strcmp("-H",argv[c])) {
-#if defined HAVE_MD5
-			Hash = 1;
-			MD5_INIT(MD5ctxt);
+#ifdef HAVE_MD5
+			addHashAlgorithm("MD5");
 #else
-			warningmsg("md5 hash support has not been compiled in!");
+			fatal("hash calculation support has not been compiled in!\n");
 #endif
+		} else if (!strcmp("--hash",argv[c])) {
+			++c;
+#if HAVE_LIBMHASH
+			if (!strcmp(argv[c],"list")) {
+				fprintf(stderr,"valid hash functions are:\n");
+				int algo = mhash_count();
+				while (algo >= 0) {
+					const char *algoname = (const char *) mhash_get_hash_name_static(algo);
+					if (algoname)
+						fprintf(stderr,"\t%s\n",algoname);
+					--algo;
+				}
+				exit(EXIT_SUCCESS);
+			}
+#elif defined HAVE_MD5
+			if (!strcmp(argv[c],"list")) {
+				fprintf(stderr,"valid hash functions are:\n");
+				fprintf(stderr,"\tmd5\n");
+				exit(EXIT_SUCCESS);
+			}
+#else
+			fatal("hash calculation support has not been compiled in!\n");
+#endif
+			addHashAlgorithm(argv[c]);
 		} else if (!argcheck("-D",argv,&c,argc)) {
 			OutVolsize = calcint(argv,c,0);
 			debugmsg("OutVolsize = %llu\n",OutVolsize);
@@ -1590,7 +1735,7 @@ int main(int argc, const char **argv)
 	/* SPW: Volsize consistency checking */
 	if (OutVolsize && !outfile)
 		fatal("Setting OutVolsize without an output device doesn't make sense!\n");
-	if ( (OutVolsize != 0) && (OutVolsize < Blocksize) )
+	if ((OutVolsize != 0) && (OutVolsize < Blocksize))
 		/* code assumes we can write at least one block */
 		fatal("If non-zero, OutVolsize must be at least as large as the buffer blocksize (%llu)!\n",Blocksize);
 	/* SPW END */
@@ -1713,9 +1858,24 @@ int main(int argc, const char **argv)
 	else
 		infomsg("direct I/O hinting failed for input: %s\n",strerror(errno));
 #endif
-	if (Dest) {
+	if (numOut == 0) {
+		dest_t *d = malloc(sizeof(dest_t));
+		d->next = Dest;
+		Dest = d;
+		Dest->fd = dup(STDOUT_FILENO);
+		err = dup2(STDERR_FILENO,STDOUT_FILENO);
+		assert(err != -1);
+		Dest->name = "<stdout>";
+		Dest->arg = "<stdout>";
+		Dest->port = 0;
+		Dest->result = 0;
+		Dest->next = 0;
+		bzero(&Dest->thread,sizeof(Dest->thread));
+		NumSenders = 0;
+	}
+	{
 		dest_t *d = Dest;
-		do {
+		while (d) {
 			if (d->fd == -1) {
 				mode_t mode = O_WRONLY|O_TRUNC|OptSync|LARGEFILE|Direct;
 				if (strncmp(d->arg,"/dev/",5))
@@ -1739,29 +1899,19 @@ int main(int argc, const char **argv)
 				--NumSenders;
 			}
 #ifdef __sun
-			else if (0 == directio(d->fd,DIRECTIO_ON))
-				infomsg("direct I/O hinting enabled for output to %s\n",d->arg);
-			else
-				infomsg("direct I/O hinting failed for output to %s: %s\n",d->arg,strerror(errno));
+			else if (d->arg) {
+				if (0 == directio(d->fd,DIRECTIO_ON))
+					infomsg("direct I/O hinting enabled for output to %s\n",d->arg);
+				else
+					infomsg("direct I/O hinting failed for output to %s: %s\n",d->arg,strerror(errno));
+			}
 #endif
 			d = d->next;
-		} while (d);
+		}
 		if (NumSenders == -1) {
 			debugmsg("no output left - nothing to do\n");
 			exit(EXIT_FAILURE);
 		}
-	} else {
-		Dest = malloc(sizeof(dest_t));
-		Dest->fd = dup(STDOUT_FILENO);
-		err = dup2(STDERR_FILENO,STDOUT_FILENO);
-		assert(err != -1);
-		Dest->name = "<stdout>";
-		Dest->arg = "<stdout>";
-		Dest->port = 0;
-		Dest->result = 0;
-		Dest->next = 0;
-		bzero(&Dest->thread,sizeof(Dest->thread));
-		NumSenders = 0;
 	}
 
 	debugmsg("checking if we have a controlling terminal...\n");
@@ -1851,12 +2001,17 @@ int main(int argc, const char **argv)
 	}
 	err = pthread_create(&dest->thread,0,&outputThread,dest);
 	assert(0 == err);
-	err = pthread_create(&Reader,0,&inputThread,0);
-	assert(0 == err);
-	(void) pthread_sigmask(SIG_UNBLOCK, &signalSet, NULL);
 	if (Status) {
+		err = pthread_create(&Reader,0,&inputThread,0);
+		assert(0 == err);
+		(void) pthread_sigmask(SIG_UNBLOCK, &signalSet, NULL);
 		statusThread();
+		err = pthread_join(Reader,0);
+		if (err != 0)
+			errormsg("error joining reader: %s\n",strerror(errno));
 	} else {
+		(void) pthread_sigmask(SIG_UNBLOCK, &signalSet, NULL);
+		inputThread(0);
 		debugmsg("waiting for output to finish...\n");
 		if (TermQ[0] != -1) {
 			err = read(TermQ[0],&null,1);
@@ -1870,13 +2025,14 @@ int main(int argc, const char **argv)
 		infomsg("waiting for senders...\n");
 		if (Terminate)
 			cancelAll();
-		ret = pthread_join(Reader,0);
-		if (ret != 0)
-			errormsg("error joining reader: %s\n",strerror(errno));
 		do {
 			void *status;
 			if (d->name) {
-				debugmsg("joining %s\n",d->arg);
+				if (d->arg) {
+					debugmsg("joining sender for %s\n",d->arg);
+				} else {
+					debugmsg("joining hasher for %s\n",d->name);
+				}
 				ret = pthread_join(d->thread,&status);
 				if (ret != 0)
 					errormsg("error joining %s: %s\n",d->arg,d->name,strerror(errno));
@@ -1886,19 +2042,24 @@ int main(int argc, const char **argv)
 			d = d->next;
 		} while (d);
 	}
+	if (Status)
+		summary(Numout * Blocksize + Rest, numthreads);
 	if (Memmap) {
 		int ret = munmap(Buffer[0],Blocksize*Numblocks);
 		assert(ret == 0);
 	}
 	if (Tmp != -1)
 		(void) close(Tmp);
-	summary(Numout * Blocksize + Rest, numthreads);
 	if (Dest) {
 		dest_t *d = Dest;
 		do {
 			dest_t *n = d->next;
-			if (d->result)
-				warningmsg("error during output to %s: %s\n",d->arg,d->result);
+			if (d->result) {
+				if (d->arg)
+					warningmsg("error during output to %s: %s\n",d->arg,d->result);
+				else
+					write(STDERR_FILENO,d->result,strlen(d->result));
+			}
 			free(d);
 			d = n;
 		} while (d);
