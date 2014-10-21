@@ -61,7 +61,8 @@ int AddrFam = PF_INET;
 static void setTCPBufferSize(int sock, unsigned buffer)
 {
 	int err;
-	int32_t osize, size, bsize = sizeof(osize);
+	int32_t osize, size;
+	socklen_t bsize = sizeof(osize);
 
 	assert(buffer == SO_RCVBUF || buffer == SO_SNDBUF);
 	err = getsockopt(sock,SOL_SOCKET,buffer,&osize,&bsize);

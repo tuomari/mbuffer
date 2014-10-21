@@ -202,6 +202,7 @@ static char *volatile SendAt = 0;
 static volatile int SendSize = 0, ActSenders = 0;
 
 #ifdef __CYGWIN__
+#include <malloc.h>
 #undef assert
 #define assert(x) ((x) || (*(char *) 0 = 1))
 #endif
@@ -290,7 +291,8 @@ static void cancelAll(void)
 			d->result = "canceled";
 		d = d->next;
 	} while (d);
-	(void) pthread_cancel(Reader);
+	if (Status)
+		(void) pthread_cancel(Reader);
 }
 
 
@@ -343,18 +345,21 @@ static void statusThread(void)
 	int unwritten = 1;	/* assumption: initially there is at least one unwritten block */
  	fd_set readfds;
  	struct timeval timeout = {0,200000};
+	int maxfd = 0;
   
- 	FD_ZERO(&readfds);
- 	if (TermQ[0] != -1)
- 		FD_SET(TermQ[0],&readfds);
 	last = Starttime;
 #ifdef __alpha
 	(void) mt_usleep(1000);	/* needed on alpha (stderr fails with fpe on nan) */
 #endif
+	if (TermQ[0] != -1)
+		maxfd = TermQ[0]+1;
  	while ((Numin == 0) && (Terminate == 0) && (Finish == -1)) {
  		timeout.tv_sec = 0;
  		timeout.tv_usec = 200000;
- 		switch (select(TermQ[0]+1,&readfds,0,0,&timeout)) {
+		FD_ZERO(&readfds);
+		if (TermQ[0] != -1)
+			FD_SET(TermQ[0],&readfds);
+ 		switch (select(maxfd,&readfds,0,0,&timeout)) {
  		case 0: continue;
  		case 1: break;
  		case -1:
@@ -370,7 +375,10 @@ static void statusThread(void)
 
  		timeout.tv_sec = 0;
  		timeout.tv_usec = 500000;
- 		err = select(TermQ[0]+1,&readfds,0,0,&timeout);
+		FD_ZERO(&readfds);
+		if (TermQ[0] != -1)
+			FD_SET(TermQ[0],&readfds);
+ 		err = select(maxfd,&readfds,0,0,&timeout);
  		switch (err) {
  		case 0: break;
  		case 1: return;
@@ -570,7 +578,12 @@ static void *inputThread(void *ignored)
 	long long xfer = 0;
 	const double startread = StartRead, startwrite = StartWrite;
 	struct timespec last;
+#ifndef __sun
+	int maxfd = TermQ[0] > In ? TermQ[0] + 1 : In + 1;
 
+	if (Status != 0)
+		assert(TermQ[0] != -1);
+#endif
 	(void) clock_gettime(ClockSrc,&last);
 	assert(ignored == 0);
 	infomsg("inputThread: starting...\n");
@@ -607,6 +620,20 @@ static void *inputThread(void *ignored)
 		num = 0;
 		do {
 			int in;
+#ifndef __sun
+			if (Status != 0) {
+				fd_set readfds;
+				FD_ZERO(&readfds);
+				FD_SET(TermQ[0],&readfds);
+				FD_SET(In,&readfds);
+				err = select(maxfd,&readfds,0,0,0);
+				debugiomsg("inputThread: select(%d, {%d,%d}, 0, 0, 0) = %d\n", maxfd,In,TermQ[0],err);
+				assert((err > 0) || (errno == EBADF));
+				if (FD_ISSET(TermQ[0],&readfds))
+					return (void *)-1;
+				assert(FD_ISSET(In,&readfds));
+			}
+#endif
 			in = read(In,Buffer[at] + num,Blocksize - num);
 			debugiomsg("inputThread: read(In, Buffer[%d] + %llu, %llu) = %d\n", at, num, Blocksize - num, in);
 			if ((0 == in) && (Terminal||Autoloader) && (Multivolume)) {
@@ -614,6 +641,8 @@ static void *inputThread(void *ignored)
 			} else if (-1 == in) {
 				if (Terminate == 0)
 					errormsg("inputThread: error reading at offset 0x%llx: %s\n",Numin*Blocksize,strerror(errno));
+				Rest = 0;
+				Finish = at;
 				if (num) {
 					Finish = at;
 					Rest = num;
@@ -831,7 +860,7 @@ static void *senderThread(void *arg)
 
 
 
-void *hashThread(void *arg)
+static void *hashThread(void *arg)
 {
 #ifdef HAVE_MD5
 	dest_t *dest = (dest_t *) arg;
@@ -1576,12 +1605,14 @@ int main(int argc, const char **argv)
 				outfile = argv[c];
 			++numOut;
 			++NumSenders;
+#ifdef AF_INET6
 		} else if (!strcmp("-0",argv[c])) {
 			AddrFam = AF_UNSPEC;
 		} else if (!strcmp("-4",argv[c])) {
 			AddrFam = AF_INET;
 		} else if (!strcmp("-6",argv[c])) {
 			AddrFam = AF_INET6;
+#endif
 		} else if (!argcheck("-I",argv,&c,argc)) {
 			initNetworkInput(argv[c]);
 		} else if (!argcheck("-O",argv,&c,argc)) {
@@ -1978,7 +2009,7 @@ int main(int argc, const char **argv)
 		errormsg("could not stat output: %s\n",strerror(errno));
 	else if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode)) {
 		infomsg("blocksize is %d bytes on output device\n",st.st_blksize);
-		if ((Blocksize < st.st_blksize) || (Blocksize % st.st_blksize != 0)) {
+		if (Blocksize % st.st_blksize != 0) {
 			warningmsg("Blocksize should be a multiple of the blocksize of the output device!\n"
 				"This can cause problems with some device/OS combinations...\n"
 				"Blocksize on output device is %d (transfer block size is %lld)\n", st.st_blksize, Blocksize);
@@ -1996,16 +2027,11 @@ int main(int argc, const char **argv)
 	if (-1 == fstat(In,&st))
 		warningmsg("could not stat input: %s\n",strerror(errno));
 	else if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode)) {
-		infomsg("blocksize is %d bytes on output device\n",st.st_blksize);
-		if ((Blocksize < st.st_blksize) || (Blocksize % st.st_blksize != 0)) {
+		infomsg("blocksize is %d bytes on input device\n",st.st_blksize);
+		if (Blocksize % st.st_blksize != 0) {
 			warningmsg("Blocksize should be a multiple of the blocksize of the input device!\n"
 				"Use option -s to adjust transfer block size if you get an out-of-memory error on input.\n"
 				"Blocksize on input device is %d (transfer block size is %lld)\n", st.st_blksize, Blocksize);
-		} else {
-			if (SetOutsize) {
-				infomsg("setting output blocksize to %d\n",st.st_blksize);
-				Outsize = st.st_blksize;
-			}
 		}
 	} else
 		infomsg("no device on input stream\n");
@@ -2015,11 +2041,8 @@ int main(int argc, const char **argv)
 		   "using multiple volumes. Continue at your own risk!\n");
 #endif
 	if (Status) {
-		if (-1 == pipe(TermQ)) {
-			warningmsg("could not create termination pipe: %s\n",strerror(errno));
-			TermQ[0] = -1;
-			TermQ[1] = -1;
-		}
+		if (-1 == pipe(TermQ))
+			fatal("could not create termination pipe: %s\n",strerror(errno));
 	} else {
 		TermQ[0] = -1;
 		TermQ[1] = -1;
@@ -2036,7 +2059,7 @@ int main(int argc, const char **argv)
 			errormsg("error joining reader: %s\n",strerror(errno));
 	} else {
 		(void) pthread_sigmask(SIG_UNBLOCK, &signalSet, NULL);
-		inputThread(0);
+		(void) inputThread(0);
 		debugmsg("waiting for output to finish...\n");
 		if (TermQ[0] != -1) {
 			err = read(TermQ[0],&null,1);
