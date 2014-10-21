@@ -11,35 +11,35 @@ multi-threaded, supports network connections, and offers more options
 than the standard buffer.
 .SH "OPTIONS"
 .LP 
-.TP 
+.TP
 \fB\-i\fR <\fIfilename\fP>
 Use \fIfilename\fP as input instead of the standard input (needs to be
 given for multi volume support). If \fIfilename\fP is -, input is read
 from standard input.
-.TP 
+.TP
 \fB\-I\fR <\fIport\fP>
 Use network port \fIport\fP as input instead of the standard input. If
 given a hostname and a port in the form hostname:port, the first interface
 with the IP of hostname will be used.
-.TP 
+.TP
 \fB\-o\fR <\fIfilename\fP>
 Use \fIfilename\fP as output instead of the standard output (needs to be
 given for multi volume support, will enable use of sendfile if
 available). If \fIfilename\fP is \-, output is written to standard
 output. The option \-o can be passed multiple times to specify multiple
 outputs.
-.TP 
+.TP
 \fB\-O\fR <\fIhostname:port\fP>
 Write output to \fIhostname:port\fP instead of the standard output (will
 enable use of sendfile if available). This option can be used multiple
 times to send data to multiple machines.
-.TP 
+.TP
 \fB\-b\fR <\fInum\fP>
 Use \fInum\fP blocks for buffer (default 256).
-.TP 
+.TP
 \fB\-s\fR <\fIsize\fP>
 Use blocks of \fIsize\fP bytes for buffer (default pagesize of system).
-.TP 
+.TP
 \fB\-m\fR <\fIsize\fP>
 Use a total of \fIsize\fP bytes for buffer (default 2MB) - size can be
 set with a trailing character (b and B for Byte, k for kByte, M for
@@ -52,7 +52,8 @@ buffers and requires mbuffer to be set-UID root (use with care).
 .TP 
 \fB\-n\fR <\fInum\fP>
 \fInum\fP volumes in input device (requires use of option \-i for input
-device specification) [currently multi volume support is EXPERIMENTAL]
+device specification, pass 0 as argument if mbuffer should prompt for every
+new volume)
 .TP 
 \fB\-t\fR
 use a memory-mapped temporary file as buffer (use with huge buffers)
@@ -95,7 +96,11 @@ enhances overall performance, by avoiding tape screwing.
 Same as above only for setting the transfer limit for the writer.
 .TP 
 \fB\-A\fR <\fIcmd\fP>
-the device used is an autoloader which uses \fIcmd\fP to load the next volume
+the device used is an autoloader which uses \fIcmd\fP to load the next
+volume. Pass <\fI/bin/false\fP> as an autoload command to suppress the
+warning message that appears when run without controlling terminal (e.g.
+via cron). Like this the autoload will fail and mbuffer will terminate
+with an error message when reaching the end of the tape.
 .TP 
 \fB\-a\fR <\fItime\fP>
 the device used is an autoloader which takes \fItime\fP seconds to load a new tape
@@ -118,6 +123,10 @@ I/O debugging). Higher values include lower values messages.
 .TP 
 \fB\-q\fR
 quiet \- do not display the status on the standard error output
+.TP 
+\fB\-Q\fR
+quiet \- do not log the status in the log file
+.TP 
 \fB\-\-direct\fR
 Use O_DIRECT to open file descriptors. This option is not available on
 all systems. It tells the OS to bypass the page cache to improve
@@ -127,6 +136,12 @@ aware that this option might lead to read/write failures, if the buffer
 isn't properly aligned for direct I/O. Additionally, open might fail
 with EINVAL (i.e. invalid argument) if the named file does not support
 O_DIRECT.
+.TP 
+\fB\-\-append\fR
+Open next output file given via option -o in append mode.
+.TP 
+\fB\-\-truncate\fR
+Truncate next output file given via option -o when opening it.
 .TP 
 \fB\-6\fR
 Force IPv6 mode for the following network I/O options on command line.
@@ -143,6 +158,46 @@ Generate a MD5 hash of transferred data.
 .TP 
 \fB\-V, \-\-version\fR
 Output version information and exit.
+.TP 
+\fB\-W\fR <\fItimeout\fP>
+Activates a watchdog that gets triggered every \fItimeout\fP seconds and
+checks weather I/O activity has stalled. If either channel has stalled
+for a complete period, the watchdog writes an error message and
+terminates mbuffer via SIGINT. Be aware that the watchdog is unaware of
+tape-change activities. So choose the watchdog timeout greater that the
+worst-case tape-change time.
+.SH "DEFAULT VALUES"
+The default values for following options can be set as \fIkey = value\fP pairs
+in the ~/.mbuffer.rc file:
+.br
+\fIblocksize\fP: block size (option -s)
+.br
+\fItimeout\fP: watchdog timeout (option -W)
+.br
+\fItotalmem\fP: total buffer size (option -m)
+.br
+\fImaxreadspeed\fP: maximum read speed (option -r)
+.br
+\fImaxwritespeed\fP: maximum write speed (option -R)
+.br
+\fIstartwrite\fP: threshold for start writing (option -P)
+.br
+\fIstartread\fP: threshold for start reading (option -p)
+.br
+\fIpause\fP: pause after writing a block (option -u)
+.br
+\fInumblocks\fP: number of blocks in buffer (option -b)
+.br
+\fImemlock\fP: lock buffer in memory (option -L)
+.br
+\fIshowstatus\fP: print transfer status on console (option -q)
+.br
+\fIlogstatus\fP: write transfer status to logfile (option -Q)
+.br
+\fItcpbuffer\fP: TCP buffer size (option --tcpbuffer)
+.br
+
+
 .SH "ENVIRONMENT VARIABLES"
 If TMPDIR is set, mbuffer allocates storage for file-based buffers in this
 directory\&. If TMPDIR is unset, \fI/var/tmp\fR will be used\&.
@@ -151,6 +206,8 @@ directory\&. If TMPDIR is unset, \fI/var/tmp\fR will be used\&.
 \fI@prefix@/bin/mbuffer\fP 
 .br 
 \fI/var/tmp/mbuffer-*\fP 
+.br 
+\fI~/.mbuffer.rc\fP 
 .SH "EXAMPLES"
 .LP 
 To run this program with the default options just type:
