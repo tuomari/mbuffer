@@ -8,8 +8,12 @@ Files: *
 Copyright: Copyright (C) 2000-2009, Thomas Maier-Komor
 License: GPL-3+
 
+Files: dest.h
+Copyright: Copyright (C) 2010, Thomas Maier-Komor
+License: GPL-3+
+
 Files: mbuffer.c
-Copyright: Copyright (C) 2000-2011, Thomas Maier-Komor
+Copyright: Copyright (C) 2000-2014, Thomas Maier-Komor
 License: GPL-3+
 
 Files: debian/*
