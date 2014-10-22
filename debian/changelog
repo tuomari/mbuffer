@@ -1,4 +1,4 @@
-mbuffer (20140310-1) UNRELEASED; urgency=medium
+mbuffer (20140310-1) unstable; urgency=medium
 
   * Fix the watch file: support both absolute and relative links.
   * Remove the obsolete DM-Upload-Allowed source control field.
@@ -25,7 +25,7 @@ mbuffer (20140310-1) UNRELEASED; urgency=medium
     the configure script and friends.  Add the 14-autoconf patch to
     update the configure.in template and to fix some fallout.
 
- -- Peter Pentchev <roam@ringlet.net>  Tue, 21 Oct 2014 15:32:10 +0300
+ -- Peter Pentchev <roam@ringlet.net>  Thu, 23 Oct 2014 01:19:17 +0300
 
 mbuffer (20110119-2) unstable; urgency=low
 
