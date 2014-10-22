@@ -20,6 +20,9 @@ mbuffer (20140310-1) UNRELEASED; urgency=medium
     - add the 12-path-max patch to determine the max path length
       on the fly, e.g. for the Hurd where there is no PATH_MAX
     - add the 13-off-by-one patch to fix an off-by-one memory allocation
+  * Use dh-autoreconf instead of autotools-dev to also regenerate
+    the configure script and friends.  Add the 14-autoconf patch to
+    update the configure.in template and to fix some fallout.
 
  -- Peter Pentchev <roam@ringlet.net>  Tue, 21 Oct 2014 15:32:10 +0300
 
