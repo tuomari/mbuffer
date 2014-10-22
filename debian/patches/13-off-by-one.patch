@@ -1,6 +1,6 @@
 Description: Fix a malloc() off-by-one error.
 Author: Peter Pentchev <roam@ringlet.net>
-Forwarded: not-yet
+Forwarded: yes
 Last-Update: 2014-10-22
 
 --- a/mbuffer.c

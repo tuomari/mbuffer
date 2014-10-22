@@ -10,7 +10,7 @@ Description: Update the Autoconf configure.in template.
   after the last possible place where config.h may be included
   again to avoid it accidentally redefining it.
 Author: Peter Pentchev <roam@ringlet.net>
-Forwarded: not-yet
+Forwarded: yes
 Last-Update: 2014-10-22
 
 --- a/configure.in

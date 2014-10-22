@@ -1,7 +1,7 @@
 Description: Determine the path length limit dynamically.
   This will allow mbuffer to build on e.g. the Hurd - no PATH_MAX.
 Author: Peter Pentchev <roam@ringlet.net>
-Forwarded: not-yet
+Forwarded: yes
 Last-Update: 2014-10-22
 
 --- a/mbuffer.c

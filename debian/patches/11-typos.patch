@@ -1,6 +1,6 @@
 Description: Fix some grammatical and typographical errors.
 Author: Peter Pentchev <roam@ringlet.net>
-Forwarded: not-yet
+Forwarded: yes
 Last-Update: 2014-10-22
 
 --- a/mbuffer.c

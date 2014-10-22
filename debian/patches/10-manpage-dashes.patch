@@ -1,6 +1,6 @@
 Description: Properly mark up dashes as such in the manual page.
 Author: Peter Pentchev <roam@ringlet.net>
-Forwarded: not-yet
+Forwarded: yes
 Last-Update: 2014-10-21
 
 --- a/mbuffer.1.in
