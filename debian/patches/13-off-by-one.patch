@@ -1,0 +1,16 @@
+Description: Fix a malloc() off-by-one error.
+Author: Peter Pentchev <roam@ringlet.net>
+Forwarded: not-yet
+Last-Update: 2014-10-22
+
+--- a/mbuffer.c
++++ b/mbuffer.c
+@@ -1867,7 +1867,7 @@
+ 
+ 	/* setup logging prefix */
+ 	progname = basename(argv0);
+-	PrefixLen = strlen(progname) + 2;
++	PrefixLen = strlen(progname) + 3;
+ 	Prefix = malloc(PrefixLen);
+ 	(void) strcpy(Prefix,progname);
+ 	Prefix[PrefixLen - 2] = ':';

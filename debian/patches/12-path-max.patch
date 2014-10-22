@@ -1,0 +1,59 @@
+Description: Determine the path length limit dynamically.
+  This will allow mbuffer to build on e.g. the Hurd - no PATH_MAX.
+Author: Peter Pentchev <roam@ringlet.net>
+Forwarded: not-yet
+Last-Update: 2014-10-22
+
+--- a/mbuffer.c
++++ b/mbuffer.c
+@@ -1654,7 +1654,8 @@
+ 
+ static void initDefaults()
+ {
+-	char dfname[PATH_MAX+1], line[256];
++	long path_max = -1L;
++	char *dfname, line[256];
+ 	const char *home = getenv("HOME");
+ 	size_t l;
+ 	int df;
+@@ -1665,11 +1666,37 @@
+ 		warningmsg("HOME environment variable not set - unable to find defaults file\n");
+ 		return;
+ 	}
+-	strncpy(dfname,home,PATH_MAX);
++
++	/* Anything over 1024 for a home directory is... plain insane. */
++#define MBUFFER_PATH_MAX	1024
++
++#ifdef _PC_PATH_MAX
++	path_max = pathconf(home, _PC_PATH_MAX);
++	/* Ignore errors, treat -1 as undefined anyway. */
++#endif
++	if (path_max == -1L) {
++#ifdef PATH_MAX
++		path_max = PATH_MAX;
++#else
++#ifdef MAXPATHLEN
++		path_max = MAXPATHLEN;
++#else
++#ifdef _POSIX_PATH_MAX
++		path_max = _POSIX_PATH_MAX;
++#else
++		path_max = MBUFFER_PATH_MAX;
++#endif
++#endif
++#endif
++	}
++	if (path_max > MBUFFER_PATH_MAX)
++		path_max = MBUFFER_PATH_MAX;
++	dfname = alloca(path_max + 1);
++	strncpy(dfname,home,path_max);
+ 	dfname[sizeof(dfname)-1] = 0;
+ 	l = strlen(dfname);
+-	if (l + 12 > PATH_MAX) {
+-		warningmsg("the path to the defaults file exceeds PATH_MAX characters\n");
++	if (l + 12 > path_max) {
++		warningmsg("the path to the defaults file exceeds the maximum path length (%ld)\n", path_max);
+ 		return;
+ 	}
+ 	strcat(dfname,"/.mbuffer.rc");
