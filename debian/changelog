@@ -4,6 +4,7 @@ mbuffer (20140310-2) UNRELEASED; urgency=medium
     still updated, even as the package doesn't use automake.
     Thanks to Peter Michael Green <plugwash@debian.org>.
     Closes: #766734.
+  * Add --parallel to the debhelper invocation.
 
  -- Peter Pentchev <roam@ringlet.net>  Sat, 25 Oct 2014 21:02:17 +0300
 

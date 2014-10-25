@@ -9,4 +9,4 @@ export DEB_LDFLAGS_MAINT_APPEND=-Wl,-z,defs
 override_dh_auto_test:
 
 %:
-	dh $@ --with autoreconf,autotools-dev
+	dh $@ --parallel --with autoreconf,autotools-dev
