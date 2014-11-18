@@ -1,3 +1,13 @@
+mbuffer (20140310-3) UNRELEASED; urgency=medium
+
+  * Add the 15-sigaction patch to initialize all the relevant fields
+    in the sigaction structure.  This satisfies the stricter
+    requirements of the FreeBSD kernel used in kfreebsd-*.
+    Thanks, Bernhard Übelacker <bernhardu@vr-web.de> and
+    Alexander Dahl <post@lespocky.de>.  Closes: #770005
+
+ -- Peter Pentchev <roam@ringlet.net>  Wed, 19 Nov 2014 00:44:54 +0200
+
 mbuffer (20140310-2) unstable; urgency=medium
 
   * Use dh-autoreconf *and* autotools-dev so that config.sub/guess are

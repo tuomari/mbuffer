@@ -1,0 +1,17 @@
+Description: Initialize all the fields in the sigaction structure
+Author: Bernhard Übelacker <bernhardu@vr-web.de>
+Bug-Debian: https://bugs.debian.org/770005
+Forwarded: not-yet
+Last-Update: 2014-11-18
+
+--- a/mbuffer.c
++++ b/mbuffer.c
+@@ -2355,6 +2355,8 @@
+ 
+ 	debugmsg("checking if we have a controlling terminal...\n");
+ 	sig.sa_handler = SIG_IGN;
++	sigemptyset(&sig.sa_mask);
++	sig.sa_flags = 0;
+ 	err = sigaction(SIGTTIN,&sig,0);
+ 	assert(err == 0);
+ 	fl = fcntl(STDERR_FILENO,F_GETFL);
