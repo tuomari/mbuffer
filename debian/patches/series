@@ -1,8 +1,5 @@
 02-test-cleanup.patch
 09-pipe-buf.patch
-10-manpage-dashes.patch
 11-typos.patch
-12-path-max.patch
 13-off-by-one.patch
-14-autoconf.patch
 15-sigaction.patch

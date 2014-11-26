@@ -1,3 +1,12 @@
+mbuffer (20141125-1) UNRELEASED; urgency=medium
+
+  * New upstream release:
+    - remove the 10-manpage-dashes, 12-path-max and 14-autoconf patches,
+      integrated upstream
+    - update the 11-typos patch
+
+ -- Peter Pentchev <roam@ringlet.net>  Wed, 26 Nov 2014 19:54:19 +0200
+
 mbuffer (20140310-3) unstable; urgency=medium
 
   * Add the 15-sigaction patch to initialize all the relevant fields
