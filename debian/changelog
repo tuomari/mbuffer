@@ -4,6 +4,7 @@ mbuffer (20141125-1) UNRELEASED; urgency=medium
     - remove the 10-manpage-dashes, 12-path-max and 14-autoconf patches,
       integrated upstream
     - update the 11-typos patch
+    - refresh the 13-off-by-one and 15-sigaction patches, line numbers only
 
  -- Peter Pentchev <roam@ringlet.net>  Wed, 26 Nov 2014 19:54:19 +0200
 

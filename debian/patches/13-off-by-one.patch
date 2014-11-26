@@ -1,11 +1,11 @@
 Description: Fix a malloc() off-by-one error.
 Author: Peter Pentchev <roam@ringlet.net>
 Forwarded: yes
-Last-Update: 2014-10-22
+Last-Update: 2014-11-26
 
 --- a/mbuffer.c
 +++ b/mbuffer.c
-@@ -1867,7 +1867,7 @@
+@@ -1855,7 +1855,7 @@
  
  	/* setup logging prefix */
  	progname = basename(argv0);

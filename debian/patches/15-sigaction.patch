@@ -2,11 +2,11 @@ Description: Initialize all the fields in the sigaction structure
 Author: Bernhard Übelacker <bernhardu@vr-web.de>
 Bug-Debian: https://bugs.debian.org/770005
 Forwarded: not-yet
-Last-Update: 2014-11-18
+Last-Update: 2014-11-26
 
 --- a/mbuffer.c
 +++ b/mbuffer.c
-@@ -2355,6 +2355,8 @@
+@@ -2344,6 +2344,8 @@
  
  	debugmsg("checking if we have a controlling terminal...\n");
  	sig.sa_handler = SIG_IGN;
