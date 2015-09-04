@@ -1,4 +1,4 @@
-mbuffer (20150412-1) UNRELEASED; urgency=medium
+mbuffer (20150412-1) unstable; urgency=medium
 
   * New upstream release:
     - remove the 10-manpage-dashes, 12-path-max, 14-autoconf, and
@@ -13,7 +13,7 @@ mbuffer (20150412-1) UNRELEASED; urgency=medium
   * Remove Bug-Submit from the debian/upstream/metadata file; it was not
     an URL at all.
 
- -- Peter Pentchev <roam@ringlet.net>  Wed, 26 Nov 2014 19:54:19 +0200
+ -- Peter Pentchev <roam@ringlet.net>  Fri, 04 Sep 2015 17:30:28 +0300
 
 mbuffer (20140310-3) unstable; urgency=medium
 
