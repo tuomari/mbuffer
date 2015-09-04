@@ -1,8 +1,8 @@
-20141125:
+20141227:
 - added option --pid to print PID of current process
 - updated usage to include option -W
 - man page formatting fixes
-- conifgure updates
+- configure updates
 - support compiling on systems that do not define PATH_MAX
 
 20140310:
