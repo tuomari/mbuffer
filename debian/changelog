@@ -1,4 +1,4 @@
-mbuffer (20141125-1) UNRELEASED; urgency=medium
+mbuffer (20141227-1) UNRELEASED; urgency=medium
 
   * New upstream release:
     - remove the 10-manpage-dashes, 12-path-max and 14-autoconf patches,
