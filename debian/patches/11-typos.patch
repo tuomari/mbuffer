@@ -839,3 +839,43 @@ Last-Update: 2014-11-26
  	if (0 > connect(out, (struct sockaddr *) &saddr, sizeof(saddr))) {
  		dest->result = strerror(errno);
  		errormsg("could not connect to %s:%d: %s\n",dest->name,dest->port,dest->result);
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -2,7 +2,7 @@
+ - added option --pid to print PID of current process
+ - updated usage to include option -W
+ - man page formatting fixes
+-- conifgure updates
++- configure updates
+ - support compiling on systems that do not define PATH_MAX
+ 
+ 20140310:
+@@ -296,7 +296,7 @@
+   changed all floats to double
+ 
+ 20060421:
+-- set exitcode to failure whenever an error occures
++- set exitcode to failure whenever an error occurs
+ - fixed a warning
+ 
+ 20060324:
+@@ -531,7 +531,7 @@
+ 
+ 20010124:
+ - Bugfix: outputThread terminated too early in certain cases
+-- Fix for correct termination if an error occured
++- Fix for correct termination if an error occurred
+ - added install rule in Makefile
+ - status messages are now indebendend of other messages
+ - a little bit more verbose debugging info
+--- a/configure.in
++++ b/configure.in
+@@ -90,7 +90,7 @@
+ AC_SEARCH_LIBS(hstrerror,resolv socket nsl,AC_DEFINE([HAVE_HSTRERROR], [1], [Define to 1 if you have the hstrerror() function]),)
+ AC_SEARCH_LIBS(getaddrinfo,resolv socket nsl,AC_DEFINE([HAVE_GETADDRINFO], [1], [Define to 1 if you have the getaddrinfo() function]),)
+ AC_SEARCH_LIBS(socket,socket,,AC_MSG_ERROR(could not find the library containing network functions!))
+-AC_SEARCH_LIBS(gethostbyname,nsl,,AC_MSG_ERROR(could not find the library containing name convertion functions!))
++AC_SEARCH_LIBS(gethostbyname,nsl,,AC_MSG_ERROR(could not find the library containing name conversion functions!))
+ AC_SEARCH_LIBS(sendfile,sendfile,AC_DEFINE([HAVE_SENDFILE],[1],[libsendfile is available]),)
+ AC_CHECK_HEADER(sys/sendfile.h,AC_DEFINE([HAVE_SENDFILE_H],[1],[sendfile in sendfile.h]),)
+ AC_FUNC_ALLOCA
