@@ -11,6 +11,8 @@ mbuffer (20141125-1) UNRELEASED; urgency=medium
     one, so the allocation size is correct.
   * Point Vcs-Git and Vcs-Browser to my GitLab repository after migrating
     from Gitorious.
+  * Remove Bug-Submit from the debian/upstream/metadata file; it was not
+    an URL at all.
 
  -- Peter Pentchev <roam@ringlet.net>  Wed, 26 Nov 2014 19:54:19 +0200
 
