@@ -5,8 +5,8 @@ Maintainer: Peter Pentchev <roam@ringlet.net>
 Build-Depends: debhelper (>> 9), autotools-dev, dh-autoreconf, libmhash-dev
 Standards-Version: 3.9.6
 Homepage: http://www.maier-komor.de/mbuffer.html
-Vcs-Git: git://gitorious.org/mbuffer/pkg-debian-full.git
-Vcs-Browser: http://gitorious.org/mbuffer/pkg-debian-full
+Vcs-Git: https://gitlab.com/mbuffer/pkg-debian-full.git
+Vcs-Browser: https://gitlab.com/mbuffer/pkg-debian-full
 
 Package: mbuffer
 Architecture: any
