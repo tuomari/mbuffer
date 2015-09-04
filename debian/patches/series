@@ -1,4 +1,3 @@
 02-test-cleanup.patch
 09-pipe-buf.patch
 11-typos.patch
-15-sigaction.patch

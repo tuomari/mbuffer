@@ -5,7 +5,7 @@ Last-Update: 2015-09-04
 
 --- a/mbuffer.c
 +++ b/mbuffer.c
-@@ -1016,7 +1016,7 @@
+@@ -1018,7 +1018,7 @@
  
  	if (!outfile) {
  		errormsg("End of volume, but not end of input:\n"
@@ -14,7 +14,7 @@ Last-Update: 2015-09-04
  		return -1;
  	}
  	infomsg("end of volume - last block on volume: %lld\n",Numout);
-@@ -1352,7 +1352,7 @@
+@@ -1354,7 +1354,7 @@
  	(void) fprintf(stderr,
  		"mbuffer version "PACKAGE_VERSION"\n"\
  		"Copyright 2001-2014 - T. Maier-Komor\n"\
@@ -23,7 +23,7 @@ Last-Update: 2015-09-04
  		"This program comes with ABSOLUTELY NO WARRANTY!!!\n"
  		"Donations via PayPal to thomas@maier-komor.de are welcome and support this work!\n"
  		"\n"
-@@ -1381,7 +1381,7 @@
+@@ -1383,7 +1383,7 @@
  		"-m <size>  : memory <size> of buffer in b,k,M,G,%% (default: %llu%c)\n"
  #endif
  #ifdef _POSIX_MEMLOCK_RANGE
@@ -32,7 +32,7 @@ Last-Update: 2015-09-04
  #endif
  		"-d         : use blocksize of device for output\n"
  		"-D <size>  : assumed output device size (default: infinite/auto-detect)\n"
-@@ -1395,12 +1395,12 @@
+@@ -1397,12 +1397,12 @@
  		"-I <p>     : use network port <port> as input\n"
  		"-O <h>:<p> : output data to host <h> and port <p> (MUTLIPLE outputs supported)\n"
  		"-n <num>   : <num> volumes for input, '0' to prompt interactively\n"
@@ -47,7 +47,7 @@ Last-Update: 2015-09-04
  		"-f         : overwrite existing files\n"
  		"-a <time>  : autoloader which needs <time> seconds to reload\n"
  		"-A <cmd>   : issue command <cmd> to request new volume\n"
-@@ -1414,8 +1414,8 @@
+@@ -1416,8 +1416,8 @@
  #endif
  #if defined HAVE_LIBCRYPTO || defined HAVE_LIBMD5 || defined HAVE_LIBMHASH
  		"-H\n"
@@ -58,7 +58,7 @@ Last-Update: 2015-09-04
  		"--pid      : print PID of this instance\n"
  		"-W <time>  : set watchdog timeout to <time> seconds\n"
  #endif
-@@ -1475,9 +1475,9 @@
+@@ -1477,9 +1477,9 @@
  			return (unsigned long long) d;
  		default:
  			if (argv[c][-2] == '-')
@@ -70,7 +70,7 @@ Last-Update: 2015-09-04
  			return d;
  		}
  	case 1:
-@@ -2189,7 +2189,7 @@
+@@ -2191,7 +2191,7 @@
  
  	/* multi volume input consistency checking */
  	if ((NumVolumes != 1) && (!Infile))
@@ -79,7 +79,7 @@ Last-Update: 2015-09-04
  
  	/* SPW: Volsize consistency checking */
  	if (OutVolsize && !outfile)
-@@ -2220,7 +2220,7 @@
+@@ -2222,7 +2222,7 @@
  	if (Numblocks < 5)
  		fatal("Minimum block count is 5.\n");
  	if (Numblocks > mxnrsem) {
@@ -101,7 +101,14 @@ Last-Update: 2015-09-04
  AC_FUNC_ALLOCA
 --- a/ChangeLog
 +++ b/ChangeLog
-@@ -296,7 +296,7 @@
+@@ -1,5 +1,5 @@
+ 20150412:
+-- fix: watchdog cannot do its job if it is cleaned up to early
++- fix: watchdog cannot do its job if it is cleaned up too early
+ - fix: clear sa_flags and sa_mask before use, although ignored
+ 
+ 20141227:
+@@ -300,7 +300,7 @@
    changed all floats to double
  
  20060421:
@@ -110,7 +117,7 @@ Last-Update: 2015-09-04
  - fixed a warning
  
  20060324:
-@@ -531,7 +531,7 @@
+@@ -535,7 +535,7 @@
  
  20010124:
  - Bugfix: outputThread terminated too early in certain cases

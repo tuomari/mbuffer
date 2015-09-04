@@ -1,10 +1,9 @@
-mbuffer (20141227-1) UNRELEASED; urgency=medium
+mbuffer (20150412-1) UNRELEASED; urgency=medium
 
   * New upstream release:
-    - remove the 10-manpage-dashes, 12-path-max and 14-autoconf patches,
-      integrated upstream
+    - remove the 10-manpage-dashes, 12-path-max, 14-autoconf, and
+      15-sigaction patches, integrated upstream
     - update the 11-typos patch
-    - refresh the 13-off-by-one and 15-sigaction patches, line numbers only
   * Drop the 13-off-by-one patch after discussing it with the upstream
     author - the buffer is actually not supposed to be null-terminated
     and the log.c routines do not in any way use it as a null-terminated
