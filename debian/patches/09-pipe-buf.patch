@@ -1,7 +1,7 @@
 Description: Use fpathconf() if PIPE_BUF is not defined.
 Forwarded: yes
 Author: Peter Pentchev <roam@ringlet.net>
-Last-Update: 2014-10-21
+Last-Update: 2015-09-05
 
 --- a/log.c
 +++ b/log.c
@@ -162,3 +162,25 @@ Last-Update: 2014-10-21
  		va_end(val);
  	}
  	exit(EXIT_FAILURE);
+@@ -228,20 +205,7 @@
+ 	b += vsnprintf(b,sizeof(buf)-(b-buf),msg,val);
+ 	s = b - buf;
+ 	assert(s < sizeof(buf));
+-#ifdef NEED_IO_INTERLOCK
+-	if (s <= PIPE_BUF) {
+-		(void) write(Log,buf,s);
+-	} else {
+-		int err;
+-		err = pthread_mutex_lock(&LogMut);
+-		assert(err == 0);
+-		(void) write(Log,buf,s);
+-		err = pthread_mutex_unlock(&LogMut);
+-		assert(err == 0);
+-	}
+-#else
+-	(void) write(Log,buf,s);
+-#endif
++	logwrite(buf,s);
+ 	va_end(val);
+ }
+ 

@@ -1,3 +1,10 @@
+mbuffer (20150412-2) UNRELEASED; urgency=medium
+
+  * In the 09-pipe-buf patch, use logwrite() in printmsg(), too.
+    Fixes a FTBFS on the Hurd.
+
+ -- Peter Pentchev <roam@ringlet.net>  Sat, 05 Sep 2015 17:33:12 +0300
+
 mbuffer (20150412-1) unstable; urgency=medium
 
   * New upstream release:
