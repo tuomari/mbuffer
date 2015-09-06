@@ -1,3 +1,10 @@
+mbuffer (20150412-3) UNRELEASED; urgency=medium
+
+  * Resurrect the 12-path-max patch, since PATH_MAX is mentioned
+    a couple of lines further down again.
+
+ -- Peter Pentchev <roam@ringlet.net>  Sun, 06 Sep 2015 04:48:33 +0300
+
 mbuffer (20150412-2) unstable; urgency=medium
 
   * In the 09-pipe-buf patch, use logwrite() in printmsg(), too.

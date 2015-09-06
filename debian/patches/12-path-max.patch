@@ -1,0 +1,16 @@
+Description: Fix the build with PATH_MAX undefined.
+Forwarded: not-yet
+Author: Peter Pentchev <roam@ringlet.net>
+Last-Update: 2015-09-06
+
+--- a/mbuffer.c
++++ b/mbuffer.c
+@@ -1678,7 +1678,7 @@
+ 	strncpy(dfname,home,sizeof(dfname)-1);
+ 	dfname[sizeof(dfname)-1] = 0;
+ 	l = strlen(dfname);
+-	if (l + 12 > PATH_MAX) {
++	if (l + 12 > sizeof(dfname) - 1) {
+ 		warningmsg("path to defaults file breaks PATH_MAX\n");
+ 		return;
+ 	}
