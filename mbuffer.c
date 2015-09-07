@@ -352,8 +352,10 @@ static void *watchdogThread(void *ignored)
 {
 	unsigned long ni = Numin, no = Numout;
 	for (;;) {
+	        errormsg("Starting watchdog. Sleeping for ", itoa(Timeout));
 		sleep(Timeout);
-		if ((ni == Numin) && (Finish == -1)) {
+	         errormsg ("Watchdog numin ", itoa(Numin), itoa(Numout));
+	         if ((ni == Numin) && (Finish == -1)) {
 			errormsg("watchdog timeout: input stalled; sending SIGINT\n");
 			WatchdogRaised = 1;
 			kill(getpid(),SIGINT);
